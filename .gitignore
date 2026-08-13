@@ -1,0 +1,53 @@
+## .NET / Visual Studio
+
+bin/
+obj/
+.vs/
+*.user
+*.suo
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio cache/options
+.vs/
+*.userosscache
+*.sln.docstates
+
+# User-specific files
+*.rsuser
+*.userprefs
+
+# Rider
+.idea/
+
+# VS Code
+.vscode/
+
+# Secrets (never commit)
+appsettings.*.local.json
+secrets.json
+*.pfx
+
+# Node (if any front-end tooling gets added later)
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker Desktop sample content (not part of this app)
+welcome-to-docker/
