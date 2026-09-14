@@ -1,0 +1,52 @@
+﻿@model MenuItem
+@{
+ViewData["Title"] = "Edit Menu Item";
+}
+<h1>Edit Menu Item</h1>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div class="form-group">
+        <label asp-for="Name"></label>
+        <input asp-for="Name"  />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Description"></label>
+        <input asp-for="Description"  />
+        
+    </div>
+    <div class="form-group">
+        <label asp-for="Price"></label>
+        <input asp-for="Price"  />
+        <span asp-validation-for="Price" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="ImageUrl"></label>
+        <input asp-for="ImageUrl"  />
+        <span asp-validation-for="ImageUrl" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="IsInStock"></label>
+        <input asp-for="IsInStock"  />
+        <span asp-validation-for="IsInStock" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="IsSpecial"></label>
+        <input asp-for="IsSpecial"  />
+        <span asp-validation-for="IsSpecial" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="SpecialPrice"></label>
+        <input asp-for="SpecialPrice" />
+        <span asp-validation-for="SpecialPrice" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="CategoryId"></label>
+        <select asp-for="CategoryId" asp-items="ViewBag.Categories">
+            <option value="">-- Select a category --</option>
+        </select>
+        <span asp-validation-for="CategoryId" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+</form>

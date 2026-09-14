@@ -1,0 +1,20 @@
+﻿@model List<MenuItem>
+
+@{
+	ViewData["Title"] = "Menu";
+}
+<h1>Menu</h1>
+
+<ul>
+	@foreach (var item in Model)
+	{
+		<li>
+			<strong> @item.Name</strong> - R @item.Price
+			(@item.Category.Name)
+			<a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+		</li>
+	}
+
+</ul>
+<p><a asp-action="Create" class="btn btn-primary">Add New Item</a></p>
+
