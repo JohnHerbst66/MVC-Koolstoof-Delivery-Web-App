@@ -48,20 +48,31 @@ namespace Koolstoof_App_1.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
-            bool hasItems =_context.MenuItems.Any(m => m.CategoryId == id);
-            if (hasItems)
-            {
-                return RedirectToAction("Delete", new { id = id });
-            }
-
-
             var category = _context.MenuCategories.Find(id);
-            if (category != null)
+            if (category == null)
             {
-                _context.MenuCategories.Remove(category);
-                _context.SaveChanges();
+                return NotFound();
             }
-           
+
+            // The Uncategorized bucket itself can never be deleted.
+            if (category.IsUncategorized)
+            {
+                return RedirectToAction("Manage", "Menu");
+            }
+
+            var uncategorized = _context.MenuCategories.FirstOrDefault(c => c.IsUncategorized);
+            if (uncategorized != null)
+            {
+                var orphanedItems = _context.MenuItems.Where(m => m.CategoryId == id);
+                foreach (var item in orphanedItems)
+                {
+                    item.CategoryId = uncategorized.Id;
+                }
+            }
+
+            _context.MenuCategories.Remove(category);
+            _context.SaveChanges();
+
             return RedirectToAction("Manage","Menu");
         }
     }

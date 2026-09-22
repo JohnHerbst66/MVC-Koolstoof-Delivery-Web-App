@@ -18,6 +18,7 @@ namespace Koolstoof_App_1.Controllers
         {
             var categories = _context.MenuCategories
                 .Include(c => c.MenuItems)
+                .Where(c => !c.IsUncategorized)
                 .OrderBy(c => c.DisplayOrder)
                 .ToList();
             return View(categories);

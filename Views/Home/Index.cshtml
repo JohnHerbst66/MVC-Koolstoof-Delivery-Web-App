@@ -1,15 +1,40 @@
-@model List<MenuItem>
+@model HomeViewModel
 @{
     ViewData["Title"] = "Home";
 }
 
 <section class="hero-section text-center">
-    <span class="hero-badge">SINCE 2011 &middot; THABAZIMBI</span>
-    <h1 class="hero-title">From our stove to your table.</h1>
-    <p class="hero-subtitle">Fresh food, made the Koolstoof way &mdash; now available for online ordering and collection.</p>
-    <div class="hero-actions">
-        <a asp-controller="Menu" asp-action="Index" class="btn btn-primary btn-lg">Order Now</a>
-        <a asp-controller="Menu" asp-action="Index" class="btn btn-outline-light btn-lg">Browse the Menu</a>
+    <div id="heroCarousel" class="carousel slide hero-carousel" data-bs-ride="carousel" data-bs-interval="4000">
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <img src="https://images.unsplash.com/photo-1667388969250-1c7220bf3f37?w=1600&amp;q=80&amp;auto=format&amp;fit=crop" class="hero-carousel-img" alt="Restaurant interior" />
+            </div>
+            <div class="carousel-item">
+                <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1600&amp;q=80&amp;auto=format&amp;fit=crop" class="hero-carousel-img" alt="Restaurant food" />
+            </div>
+            <div class="carousel-item">
+                <img src="https://images.unsplash.com/photo-1551632436-cbf8dd35adfa?w=1600&amp;q=80&amp;auto=format&amp;fit=crop" class="hero-carousel-img" alt="Restaurant interior" />
+            </div>
+            <div class="carousel-item">
+                <img src="https://images.unsplash.com/photo-1572715376701-98568319fd0b?w=1600&amp;q=80&amp;auto=format&amp;fit=crop" class="hero-carousel-img" alt="Restaurant food" />
+            </div>
+            <div class="carousel-item">
+                <img src="https://images.unsplash.com/photo-1613274554329-70f997f5789f?w=1600&amp;q=80&amp;auto=format&amp;fit=crop" class="hero-carousel-img" alt="Restaurant interior" />
+            </div>
+            <div class="carousel-item">
+                <img src="https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?w=1600&amp;q=80&amp;auto=format&amp;fit=crop" class="hero-carousel-img" alt="Restaurant food" />
+            </div>
+        </div>
+    </div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <span class="hero-badge">SINCE 2011 &middot; THABAZIMBI</span>
+        <h1 class="hero-title">From our stove to your table.</h1>
+        <p class="hero-subtitle">Fresh food, made the Koolstoof way &mdash; now available for online ordering and collection.</p>
+        <div class="hero-actions">
+            <a asp-controller="Menu" asp-action="Index" class="btn btn-primary btn-lg">Order Now</a>
+            <a asp-controller="Menu" asp-action="Index" class="btn btn-outline-light btn-lg">Browse the Menu</a>
+        </div>
     </div>
 </section>
 
@@ -26,13 +51,13 @@
     </div>
 </section>
 
-@if (Model.Any())
+@if (Model.Specials.Any())
 {
     <section class="menu-teaser">
-        <p class="section-eyebrow">WHAT'S COOKING</p>
-        <h2 class="section-title">A taste of the menu</h2>
+        <p class="section-eyebrow">TODAY'S DEALS</p>
+        <h2 class="section-title">Koolstoof Specials</h2>
         <div class="row">
-            @foreach (var item in Model)
+            @foreach (var item in Model.Specials)
             {
                 <div class="col-md-4">
                     <div class="menu-teaser-card">
@@ -41,10 +66,46 @@
                         {
                             <p>@item.Description</p>
                         }
-                        <p class="price">@($"R{(item.SpecialPrice ?? item.Price)}")</p>
+                        @if (item.SpecialPrice.HasValue)
+                        {
+                            <p class="price"><s>@($"R{item.Price}")</s> @($"R{item.SpecialPrice}")</p>
+                        }
+                        else
+                        {
+                            <p class="price">@($"R{item.Price}")</p>
+                        }
                     </div>
                 </div>
             }
+        </div>
+        <div class="text-center mt-3">
+            <a asp-controller="Menu" asp-action="Index" class="btn btn-primary">See the full menu</a>
+        </div>
+    </section>
+}
+
+@if (Model.MostSoldItems.Any())
+{
+    <section class="menu-teaser">
+        <p class="section-eyebrow">CUSTOMER FAVOURITES</p>
+        <h2 class="section-title">Most Sold Items</h2>
+        <div class="row">
+            @foreach (var item in Model.MostSoldItems)
+            {
+                <div class="col-md-4">
+                    <div class="menu-teaser-card">
+                        <h4>@item.Name</h4>
+                        @if (!string.IsNullOrEmpty(item.Description))
+                        {
+                            <p>@item.Description</p>
+                        }
+                        <p class="price">@($"R{item.Price}")</p>
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="text-center mt-3">
+            <a asp-controller="Menu" asp-action="Index" class="btn btn-primary">See the full menu</a>
         </div>
     </section>
 }

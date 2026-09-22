@@ -17,14 +17,32 @@ namespace Koolstoof_App_1.Controllers
 
         public IActionResult Index()
         {
-            // TODO: once Orders/Checkout exist, swap this for a real "most sold" query.
-            var featuredItems = _context.MenuItems
+            var specials = _context.MenuItems
                 .Include(m => m.Category)
                 .Where(m => m.IsSpecial && m.IsInStock)
+                .ToList();
+
+            var bestSellingIds = _context.OrderItems
+                .Where(oi => oi.MenuItemId != null)
+                .GroupBy(oi => oi.MenuItemId)
+                .Select(g => new { MenuItemId = g.Key, TotalSold = g.Sum(oi => oi.Quantity) })
+                .OrderByDescending(g => g.TotalSold)
                 .Take(3)
                 .ToList();
 
-            return View(featuredItems);
+            var mostSoldItems = bestSellingIds
+                .Select(x => _context.MenuItems.FirstOrDefault(m => m.Id == x.MenuItemId && m.IsInStock))
+                .Where(m => m != null)
+                .Select(m => m!)
+                .ToList();
+
+            var viewModel = new HomeViewModel
+            {
+                Specials = specials,
+                MostSoldItems = mostSoldItems
+            };
+
+            return View(viewModel);
         }
 
         public IActionResult Privacy()

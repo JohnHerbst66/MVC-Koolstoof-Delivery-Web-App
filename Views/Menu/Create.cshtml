@@ -26,7 +26,7 @@
         </div>
 
         <div class="form-check mb-3">
-            <input asp-for="IsInStock" class="form-check-input" />
+            <input asp-for="IsInStock" class="form-check-input" checked="checked" />
             <label asp-for="IsInStock" class="form-check-label"></label>
             <span asp-validation-for="IsInStock" class="text-danger"></span>
         </div>
@@ -38,7 +38,7 @@
         </div>
 
         <div class="form-check mb-3">
-            <input asp-for="IsDeliverable" class="form-check-input" />
+            <input asp-for="IsDeliverable" class="form-check-input" checked="checked" />
             <label asp-for="IsDeliverable" class="form-check-label">Available for delivery (uncheck for sit-down/dine-in only)</label>
             <span asp-validation-for="IsDeliverable" class="text-danger"></span>
         </div>

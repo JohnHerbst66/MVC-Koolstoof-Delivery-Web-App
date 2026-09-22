@@ -14,13 +14,17 @@
 	@foreach (var category in Model)
 	{
 		<div class="col-md-4">
-			<div class="card mb-3">
+			<div class="card mb-3 @(category.IsUncategorized ? "border-warning" : "")">
 				@if (!string.IsNullOrEmpty(category.ImageUrl))
 				{
 					<img src="@category.ImageUrl" class="card-img-top" alt="@category.Name" style="height: 160px; object-fit: cover;" />
 				}
-				<div class="card-header">
+				<div class="card-header @(category.IsUncategorized ? "bg-warning" : "")">
 					<strong>@category.Name</strong>
+					@if (category.IsUncategorized)
+					{
+						<div><small>Not shown to customers - assign these items a real category to make them orderable again.</small></div>
+					}
 				</div>
 				<ul class="list-group list-group-flush ">
 					@foreach (var item in category.MenuItems)
@@ -36,9 +40,12 @@
 						</li>
 					}
 				</ul>
-				<div class="card-footer">
-					<a asp-controller="MenuCategory" asp-action="Delete" asp-route-id="@category.Id" class="btn btn-sm btn-outline-danger">Delete category</a>
+				@if (!category.IsUncategorized)
+				{
+					<div class="card-footer">
+						<a asp-controller="MenuCategory" asp-action="Delete" asp-route-id="@category.Id" class="btn btn-sm btn-outline-danger">Delete category</a>
 					</div>
+				}
 			</div>
 		</div>
 	}
