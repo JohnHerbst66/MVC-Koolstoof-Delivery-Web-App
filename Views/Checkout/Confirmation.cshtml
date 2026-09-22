@@ -1,0 +1,40 @@
+@model Order
+@{
+    ViewData["Title"] = "Order Confirmed";
+}
+
+<h1>Thanks, @Model.CustomerName!</h1>
+<p>Your order <strong>#@Model.Id</strong> has been received and is being prepared.</p>
+
+<h4>Delivering to</h4>
+<p>
+    @Model.DeliveryAddress, @Model.DeliveryArea.Name<br />
+    @Model.CustomerPhone
+</p>
+
+<h4>Order summary</h4>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Item</th>
+            <th>Qty</th>
+            <th>Line total</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var line in Model.OrderItems)
+        {
+            <tr>
+                <td>@line.MenuItemName</td>
+                <td>@line.Quantity</td>
+                <td>@($"R{line.LineTotal}")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+<p>@($"Subtotal: R{Model.Subtotal}")</p>
+<p>@($"Delivery fee: R{Model.DeliveryFee}")</p>
+<h4>@($"Total: R{Model.Total}")</h4>
+<p>Payment method: Cash on delivery</p>
+
+<a asp-controller="Home" asp-action="Index" class="btn btn-primary">Back to Home</a>

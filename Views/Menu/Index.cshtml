@@ -1,20 +1,63 @@
-﻿@model List<MenuItem>
+@model List<MenuCategory>
 
 @{
-	ViewData["Title"] = "Menu";
+    ViewData["Title"] = "Menu";
 }
+
 <h1>Menu</h1>
 
-<ul>
-	@foreach (var item in Model)
-	{
-		<li>
-			<strong> @item.Name</strong> - R @item.Price
-			(@item.Category.Name)
-			<a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-		</li>
-	}
+<div class="row">
+    @foreach (var category in Model)
+    {
+        <div class="col-md-4">
+            <div class="card mb-3">
+                @if (!string.IsNullOrEmpty(category.ImageUrl))
+                {
+                    <img src="@category.ImageUrl" class="card-img-top" alt="@category.Name" style="height: 160px; object-fit: cover;" />
+                }
+                <div class="card-header">
+                    <strong>@category.Name</strong>
+                </div>
+                <ul class="list-group list-group-flush">
+                    @foreach (var item in category.MenuItems)
+                    {
+                        <li class="list-group-item">
+                            <div>
+                                <strong>@item.Name</strong>
+                                @if (item.IsSpecial && item.SpecialPrice.HasValue)
+                                {
+                                    <span> - <s>@($"R{item.Price}")</s> @($"R{item.SpecialPrice} (Special)")</span>
+                                }
+                                else
+                                {
+                                    <span> - @($"R{item.Price}")</span>
+                                }
+                            </div>
+                            @if (!string.IsNullOrEmpty(item.Description))
+                            {
+                                <div><small>@item.Description</small></div>
+                            }
 
-</ul>
-<p><a asp-action="Create" class="btn btn-primary">Add New Item</a></p>
-
+                            @if (!item.IsInStock)
+                            {
+                                <span class="text-muted">Out of stock</span>
+                            }
+                            else if (!item.IsDeliverable)
+                            {
+                                <span class="text-muted">Sit-down only &mdash; not available for delivery</span>
+                            }
+                            else
+                            {
+                                <form asp-controller="Cart" asp-action="Add" method="post" class="d-flex align-items-center mt-1">
+                                    <input type="hidden" name="menuItemId" value="@item.Id" />
+                                    <input type="number" name="quantity" value="1" min="1" style="width: 60px;" class="form-control form-control-sm me-2" />
+                                    <button type="submit" class="btn btn-sm btn-primary">Add to Cart</button>
+                                </form>
+                            }
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    }
+</div>

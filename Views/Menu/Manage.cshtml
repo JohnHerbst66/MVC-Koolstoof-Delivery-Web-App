@@ -1,0 +1,45 @@
+@model List<MenuCategory>
+
+@{
+	ViewData["Title"] = "Manage Menu";
+}
+<h1>Manage Menu</h1>
+
+<p>
+	<a asp-controller="Menu" asp-action="Create" class="btn btn-primary">Add New Item</a>
+	<a asp-controller="MenuCategory" asp-action="Create" class="btn btn-secondary">Add Category</a>
+</p>
+
+<div class="row">
+	@foreach (var category in Model)
+	{
+		<div class="col-md-4">
+			<div class="card mb-3">
+				@if (!string.IsNullOrEmpty(category.ImageUrl))
+				{
+					<img src="@category.ImageUrl" class="card-img-top" alt="@category.Name" style="height: 160px; object-fit: cover;" />
+				}
+				<div class="card-header">
+					<strong>@category.Name</strong>
+				</div>
+				<ul class="list-group list-group-flush ">
+					@foreach (var item in category.MenuItems)
+					{
+						<li class="list-group-item">
+							@item.Name - @($"R{item.Price}")
+							@if (!item.IsDeliverable)
+							{
+								<span class="badge bg-secondary">Sit-down only</span>
+							}
+							<a asp-controller="Menu" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+							<a asp-controller="Menu" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+						</li>
+					}
+				</ul>
+				<div class="card-footer">
+					<a asp-controller="MenuCategory" asp-action="Delete" asp-route-id="@category.Id" class="btn btn-sm btn-outline-danger">Delete category</a>
+					</div>
+			</div>
+		</div>
+	}
+</div>

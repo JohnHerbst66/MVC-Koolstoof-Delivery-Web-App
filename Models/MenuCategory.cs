@@ -6,6 +6,7 @@
         public int Id { get; set; }
         public required string Name { get; set; }
         public int DisplayOrder { get; set; }
+        public string? ImageUrl { get; set; }
         public ICollection<MenuItem> MenuItems { get; set; } = new List<MenuItem>();
     }
 }

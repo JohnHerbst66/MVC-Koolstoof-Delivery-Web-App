@@ -1,0 +1,49 @@
+@model List<CartItem>
+
+@{
+    ViewData["Title"] = "Your Cart";
+}
+
+<h1>Your Cart</h1>
+
+@if (!Model.Any())
+{
+    <p>Your cart is empty.</p>
+    <a asp-controller="Menu" asp-action="Index" class="btn btn-primary">Browse the menu</a>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Price</th>
+                <th>Qty</th>
+                <th>Line total</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var line in Model)
+            {
+                <tr>
+                    <td>@line.Name</td>
+                    <td>@($"R{line.Price}")</td>
+                    <td>@line.Quantity</td>
+                    <td>@($"R{line.LineTotal}")</td>
+                    <td>
+                        <form asp-controller="Cart" asp-action="Remove" method="post">
+                            <input type="hidden" name="menuItemId" value="@line.MenuItemId" />
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h3>@($"Total: R{Model.Sum(c => c.LineTotal)}")</h3>
+
+    <a asp-controller="Checkout" asp-action="Index" class="btn btn-primary">Proceed to Checkout</a>
+    <a asp-controller="Menu" asp-action="Index" class="btn btn-secondary">Keep browsing</a>
+}

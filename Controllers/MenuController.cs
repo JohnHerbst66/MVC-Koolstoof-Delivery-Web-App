@@ -16,8 +16,20 @@ namespace Koolstoof_App_1.Controllers
         }
         public IActionResult Index()
         {
-            var menuItems = _context.MenuItems.Include(m => m.Category).ToList();
-            return View(menuItems);
+            var categories = _context.MenuCategories
+                .Include(c => c.MenuItems)
+                .OrderBy(c => c.DisplayOrder)
+                .ToList();
+            return View(categories);
+        }
+
+        public IActionResult Manage()
+        {
+            var categories = _context.MenuCategories
+                .Include(c => c.MenuItems)
+                .OrderBy(c => c.DisplayOrder)
+                .ToList();
+            return View(categories);
         }
         [HttpGet]
         public IActionResult Create()
@@ -36,7 +48,7 @@ namespace Koolstoof_App_1.Controllers
             }
             _context.MenuItems.Add(item);
             _context.SaveChanges();
-            return RedirectToAction("Index");
+            return RedirectToAction("Manage");
         }
 
         //||Edit actions||\\
@@ -67,9 +79,43 @@ namespace Koolstoof_App_1.Controllers
             }
             _context.MenuItems.Update(item);
             _context.SaveChanges();
-            return RedirectToAction("Index");
+            return RedirectToAction("Manage");
         }
 
+
+        [HttpGet]
+        public IActionResult Delete(int id)
+        {
+            var item = _context.MenuItems.Include(m => m.Category).FirstOrDefault(m => m.Id == id);
+            if (item == null) {
+                return NotFound();
+            }
+            ViewBag.HasOrderHistory = _context.OrderItems.Any(oi => oi.MenuItemId == id);
+            return View(item);
+        }
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteConfirmed(int id)
+        {
+            var item = _context.MenuItems.Find(id);
+            if (item == null)
+            {
+                return NotFound();
+            }
+            if (_context.OrderItems.Any(oi => oi.MenuItemId == id))
+            {
+                return RedirectToAction("Delete", new { id });
+            }
+            _context.MenuItems.Remove(item);
+            _context.SaveChanges();
+            return RedirectToAction("Manage");
+        }
+
+
     }
+
+
+
+
 }
 

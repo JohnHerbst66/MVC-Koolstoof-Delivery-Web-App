@@ -1,9 +1,56 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@model List<MenuItem>
+@{
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Koolstoof</h1>
-	<h2 class="display-6">Welcome to the Koolstoof App!</h2>
-    
-</div>
+<section class="hero-section text-center">
+    <span class="hero-badge">SINCE 2011 &middot; THABAZIMBI</span>
+    <h1 class="hero-title">From our stove to your table.</h1>
+    <p class="hero-subtitle">Fresh food, made the Koolstoof way &mdash; now available for online ordering and collection.</p>
+    <div class="hero-actions">
+        <a asp-controller="Menu" asp-action="Index" class="btn btn-primary btn-lg">Order Now</a>
+        <a asp-controller="Menu" asp-action="Index" class="btn btn-outline-light btn-lg">Browse the Menu</a>
+    </div>
+</section>
+
+<section class="info-strip">
+    <div class="row text-center">
+        <div class="col-md-6">
+            <h5>Open today</h5>
+            <p class="mb-0">7:00 &ndash; 22:00</p>
+        </div>
+        <div class="col-md-6">
+            <h5>Find us</h5>
+            <p class="mb-0">Thabazimbi, Limpopo</p>
+        </div>
+    </div>
+</section>
+
+@if (Model.Any())
+{
+    <section class="menu-teaser">
+        <p class="section-eyebrow">WHAT'S COOKING</p>
+        <h2 class="section-title">A taste of the menu</h2>
+        <div class="row">
+            @foreach (var item in Model)
+            {
+                <div class="col-md-4">
+                    <div class="menu-teaser-card">
+                        <h4>@item.Name</h4>
+                        @if (!string.IsNullOrEmpty(item.Description))
+                        {
+                            <p>@item.Description</p>
+                        }
+                        <p class="price">@($"R{(item.SpecialPrice ?? item.Price)}")</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+}
+
+<section class="closing-cta text-center">
+    <h2>Hungry already?</h2>
+    <p>Order online for collection.</p>
+    <a asp-controller="Menu" asp-action="Index" class="btn btn-primary btn-lg">Start your order</a>
+</section>

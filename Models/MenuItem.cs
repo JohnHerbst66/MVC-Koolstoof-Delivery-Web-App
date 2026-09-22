@@ -11,9 +11,9 @@ namespace Koolstoof_App_1.Models
 
         [Column (TypeName = "decimal(18,2)")]
         public required decimal Price { get; set; }
-        public string? ImageUrl { get; set; }
         public bool IsInStock { get; set; } =true;
         public bool IsSpecial { get; set; }=false;
+        public bool IsDeliverable { get; set; } = true;
         [Column(TypeName = "decimal(18,2)")]
         public decimal? SpecialPrice { get; set; }
         public int CategoryId { get; set; }

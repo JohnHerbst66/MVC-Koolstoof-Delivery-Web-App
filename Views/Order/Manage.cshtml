@@ -1,0 +1,49 @@
+@model List<Order>
+@{
+    ViewData["Title"] = "Orders";
+}
+
+<h1>Orders</h1>
+
+<div class="row">
+    @foreach (var status in new[] { OrderStatus.Incoming, OrderStatus.Received, OrderStatus.OutForDelivery, OrderStatus.Delivered })
+    {
+        <div class="col-md-3">
+            <h4>@status</h4>
+            @foreach (var order in Model.Where(o => o.Status == status))
+            {
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h6 class="card-title">Order #@order.Id</h6>
+                        <p class="mb-1">@order.CustomerName<br />@order.CustomerPhone</p>
+                        <p class="mb-1"><small>@order.DeliveryArea.Name</small></p>
+                        <ul class="list-unstyled small">
+                            @foreach (var line in order.OrderItems)
+                            {
+                                <li>@line.Quantity x @line.MenuItemName</li>
+                            }
+                        </ul>
+                        <p class="mb-1"><strong>@($"R{order.Total}")</strong></p>
+                        <p class="mb-1"><small>@order.PaymentMethod @(order.IsPaid ? "(Paid)" : "(Unpaid)")</small></p>
+                        <p class="mb-2"><small>@order.PlacedAt.ToString("dd MMM HH:mm")</small></p>
+
+                        @if (order.Status != OrderStatus.Delivered)
+                        {
+                            <form asp-controller="Order" asp-action="Advance" asp-route-id="@order.Id" method="post">
+                                <button type="submit" class="btn btn-sm btn-primary">
+                                    @(order.Status switch
+                                    {
+                                        OrderStatus.Incoming => "Mark Received",
+                                        OrderStatus.Received => "Send Out for Delivery",
+                                        OrderStatus.OutForDelivery => "Mark Delivered",
+                                        _ => "Advance"
+                                    })
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

@@ -1,21 +1,28 @@
-﻿@model MenuCategory
+@model MenuCategory
 @{
     ViewData["Title"] = "Add Category";
 }
 <h1>Add Category</h1>
-<form asp-action="Create" method="post">
 
-    <div>
-        <label asp-for="Name"></label>
-        <input asp-for="Name" />
-        <span asp-validation-for="Name"> </span>
-    </div>
-    <div> 
-        <label asp-for="DisplayOrder"></label>
-        <input asp-for="DisplayOrder" />
-        <span asp-validation-for="DisplayOrder"> </span>
-    </div>
+<div class="col-md-6">
+    <form asp-action="Create" method="post">
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="DisplayOrder" class="form-label"></label>
+            <input asp-for="DisplayOrder" class="form-control" />
+            <span asp-validation-for="DisplayOrder" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="ImageUrl" class="form-label"></label>
+            <input asp-for="ImageUrl" class="form-control" />
+            <span asp-validation-for="ImageUrl" class="text-danger"></span>
+        </div>
 
-	<button type="submit" >Save</button>
-    
-</form>
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a asp-action="Manage" asp-controller="Menu" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>

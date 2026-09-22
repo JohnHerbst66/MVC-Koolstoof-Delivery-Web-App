@@ -1,59 +1,63 @@
-﻿@model MenuItem
+@model MenuItem
 @{
-  ViewData["Title"] = "Add Menu Item";
+    ViewData["Title"] = "Add Menu Item";
 }
 
-<h1>Add Menu item</h1>
+<h1>Add Menu Item</h1>
 
-<form asp-action="Create" method="post">
-		<div> 
-			<label asp-for="Name"></label>
-			<input asp-for="Name" />
-		<span asp-validation-for="Name"></span>
-		</div>
-		
-		<div>
-			<label asp-for="Description"></label>
-			<input asp-for="Description" />
-			<span asp-validation-for="Description"></span>
-		</div>
-		
-		<div>
-			<label asp-for="Price"></label>
-			<input asp-for="Price" />
-			<span asp-validation-for="Price"></span>
-		</div>
-		<div>
-			<label asp-for="ImageUrl"></label>
-			<input asp-for="ImageUrl" />
-			<span asp-validation-for="ImageUrl"></span>
-		</div>
+<div class="col-md-6">
+    <form asp-action="Create" method="post">
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
 
-		<div>
-			<label asp-for="IsInStock"></label>
-			<input asp-for="IsInStock" />
-			<span asp-validation-for="IsInStock"></span>
-		</div>
+        <div class="mb-3">
+            <label asp-for="Description" class="form-label"></label>
+            <input asp-for="Description" class="form-control" />
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
 
-		<div>
-			<label asp-for="IsSpecial"></label>
-			<input asp-for="IsSpecial" />
-			<span asp-validation-for="IsSpecial"></span>
-		</div>
-		
-		<div>
-			<label asp-for="SpecialPrice"></label>
-			<input asp-for="SpecialPrice" />	
-			<span asp-validation-for="SpecialPrice"></span>
-			</div>
+        <div class="mb-3">
+            <label asp-for="Price" class="form-label"></label>
+            <input asp-for="Price" class="form-control" />
+            <span asp-validation-for="Price" class="text-danger"></span>
+        </div>
 
-		<div>
-			<label asp-for="CategoryId"></label>
-			<select asp-for="CategoryId" asp-items="ViewBag.Categories">
-			<option value="">-- Select a category --</option>
-			</select>
-			<span asp-validation-for="CategoryId"></span>	
-		</div>	
-	
-		<button type="submit">Add Menu Item</button>
-	</form>
+        <div class="form-check mb-3">
+            <input asp-for="IsInStock" class="form-check-input" />
+            <label asp-for="IsInStock" class="form-check-label"></label>
+            <span asp-validation-for="IsInStock" class="text-danger"></span>
+        </div>
+
+        <div class="form-check mb-3">
+            <input asp-for="IsSpecial" class="form-check-input" />
+            <label asp-for="IsSpecial" class="form-check-label"></label>
+            <span asp-validation-for="IsSpecial" class="text-danger"></span>
+        </div>
+
+        <div class="form-check mb-3">
+            <input asp-for="IsDeliverable" class="form-check-input" />
+            <label asp-for="IsDeliverable" class="form-check-label">Available for delivery (uncheck for sit-down/dine-in only)</label>
+            <span asp-validation-for="IsDeliverable" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="SpecialPrice" class="form-label"></label>
+            <input asp-for="SpecialPrice" class="form-control" />
+            <span asp-validation-for="SpecialPrice" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="CategoryId" class="form-label"></label>
+            <select asp-for="CategoryId" asp-items="ViewBag.Categories" class="form-select">
+                <option value="">-- Select a category --</option>
+            </select>
+            <span asp-validation-for="CategoryId" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Add Menu Item</button>
+        <a asp-action="Manage" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>

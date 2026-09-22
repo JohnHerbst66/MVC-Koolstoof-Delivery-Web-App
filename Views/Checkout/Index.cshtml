@@ -1,0 +1,94 @@
+@{
+    ViewData["Title"] = "Checkout";
+    List<CartItem> cart = ViewBag.Cart;
+    decimal subtotal = ViewBag.Subtotal;
+    bool isOpen = ViewBag.IsOpen;
+    string hoursDescription = ViewBag.HoursDescription;
+}
+
+<h1>Checkout</h1>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <li>@error.ErrorMessage</li>
+            }
+        </ul>
+    </div>
+}
+
+@if (!isOpen)
+{
+    <div class="alert alert-warning">
+        We're currently closed. Ordering hours: @hoursDescription. You can still review your order, but you won't be able to submit it until we're open.
+    </div>
+}
+
+@if (!cart.Any())
+{
+    <p>Your cart is empty.</p>
+    <a asp-controller="Menu" asp-action="Index" class="btn btn-primary">Browse the menu</a>
+}
+else
+{
+    <h4>Order summary</h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Line total</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var line in cart)
+            {
+                <tr>
+                    <td>@line.Name</td>
+                    <td>@line.Quantity</td>
+                    <td>@($"R{line.LineTotal}")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <p><strong>@($"Subtotal: R{subtotal}")</strong> (delivery fee added after you pick your area)</p>
+
+    <form asp-controller="Checkout" asp-action="PlaceOrder" method="post" class="col-md-6">
+        <div class="mb-3">
+            <label class="form-label">Your name</label>
+            <input type="text" name="customerName" class="form-control" required />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Phone number</label>
+            <input type="text" name="customerPhone" class="form-control" required />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Delivery address (street/unit details)</label>
+            <input type="text" name="deliveryAddress" class="form-control" required />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Delivery area</label>
+            <select name="deliveryAreaId" asp-items="ViewBag.DeliveryAreas" class="form-select" required>
+                <option value="">-- Select your area --</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label d-block">Payment method</label>
+            <div class="form-check">
+                <input type="radio" name="paymentMethod" value="CashOnDelivery" class="form-check-input" id="payCod" checked />
+                <label class="form-check-label" for="payCod">Cash on delivery</label>
+            </div>
+            <div class="form-check">
+                <input type="radio" class="form-check-input" id="payOnline" disabled />
+                <label class="form-check-label text-muted" for="payOnline">Pay online (PayFast) &mdash; coming soon</label>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" @(isOpen ? "" : "disabled")>Place order</button>
+        <a asp-controller="Cart" asp-action="Index" class="btn btn-secondary">Back to cart</a>
+    </form>
+}
