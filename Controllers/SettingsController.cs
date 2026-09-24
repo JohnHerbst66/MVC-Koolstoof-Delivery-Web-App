@@ -105,5 +105,22 @@ namespace Koolstoof_App_1.Controllers
             TempData["ResetPassword"] = newPassword;
             return RedirectToAction("Index");
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateNotifyNumber(string userId, string? notifyWhatsAppNumber)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null || !await _userManager.IsInRoleAsync(user, "Admin"))
+            {
+                return NotFound();
+            }
+
+            user.PhoneNumber = string.IsNullOrWhiteSpace(notifyWhatsAppNumber) ? null : notifyWhatsAppNumber.Trim();
+            await _userManager.UpdateAsync(user);
+
+            TempData["SettingsSaved"] = $"WhatsApp number for {user.UserName} saved.";
+            return RedirectToAction("Index");
+        }
     }
 }

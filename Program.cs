@@ -21,6 +21,9 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.Sign
     .AddDefaultTokenProviders();
 builder.Services.AddControllersWithViews();
 builder.Services.Configure<PayFastSettings>(builder.Configuration.GetSection("PayFast"));
+builder.Services.Configure<WhatsAppCloudSettings>(builder.Configuration.GetSection("WhatsAppCloud"));
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<WhatsAppNotificationService>();
 
 builder.Services.ConfigureApplicationCookie(options =>
 {

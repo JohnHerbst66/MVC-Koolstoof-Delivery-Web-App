@@ -111,12 +111,19 @@
             <ul class="list-group list-group-flush">
                 @foreach (var admin in adminAccounts)
                 {
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>@admin.UserName</span>
-                        <form asp-controller="Settings" asp-action="ResetPassword" method="post"
-                              onsubmit="return confirm('Reset the password for @admin.UserName? The old password will stop working immediately.');">
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <strong>@admin.UserName</strong>
+                            <form asp-controller="Settings" asp-action="ResetPassword" method="post"
+                                  onsubmit="return confirm('Reset the password for @admin.UserName? The old password will stop working immediately.');">
+                                <input type="hidden" name="userId" value="@admin.Id" />
+                                <button type="submit" class="btn btn-sm btn-outline-secondary">Reset Password</button>
+                            </form>
+                        </div>
+                        <form asp-controller="Settings" asp-action="UpdateNotifyNumber" method="post" class="d-flex gap-2">
                             <input type="hidden" name="userId" value="@admin.Id" />
-                            <button type="submit" class="btn btn-sm btn-outline-secondary">Reset Password</button>
+                            <input type="text" name="notifyWhatsAppNumber" value="@admin.PhoneNumber" class="form-control form-control-sm" placeholder="27821234567 (order alerts go here)" />
+                            <button type="submit" class="btn btn-sm btn-outline-primary text-nowrap">Save Number</button>
                         </form>
                     </li>
                 }

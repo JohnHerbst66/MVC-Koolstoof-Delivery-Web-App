@@ -2,6 +2,8 @@ using Koolstoof_App_1.Data;
 using Koolstoof_App_1.Extensions;
 using Koolstoof_App_1.Helpers;
 using Koolstoof_App_1.Models;
+using Koolstoof_App_1.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Options;
@@ -15,11 +17,16 @@ namespace Koolstoof_App_1.Controllers
 
         private readonly ApplicationDbContext _context;
         private readonly PayFastSettings _payFastSettings;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly WhatsAppNotificationService _whatsAppNotificationService;
 
-        public CheckoutController(ApplicationDbContext context, IOptions<PayFastSettings> payFastSettings)
+        public CheckoutController(ApplicationDbContext context, IOptions<PayFastSettings> payFastSettings,
+            UserManager<IdentityUser> userManager, WhatsAppNotificationService whatsAppNotificationService)
         {
             _context = context;
             _payFastSettings = payFastSettings.Value;
+            _userManager = userManager;
+            _whatsAppNotificationService = whatsAppNotificationService;
         }
 
         [HttpGet]
@@ -40,7 +47,7 @@ namespace Koolstoof_App_1.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult PlaceOrder(string customerName, string customerPhone, string deliveryAddress, int deliveryAreaId, PaymentMethod paymentMethod)
+        public async Task<IActionResult> PlaceOrder(string customerName, string customerPhone, string deliveryAddress, int deliveryAreaId, PaymentMethod paymentMethod)
         {
             var cart = HttpContext.Session.GetObjectFromJson<List<CartItem>>(CartSessionKey) ?? new List<CartItem>();
             var settings = _context.RestaurantSettings.First();
@@ -126,6 +133,13 @@ namespace Koolstoof_App_1.Controllers
             _context.SaveChanges();
 
             HttpContext.Session.Remove(CartSessionKey);
+
+            var adminNumbers = (await _userManager.GetUsersInRoleAsync("Admin"))
+                .Select(u => u.PhoneNumber)
+                .Where(n => !string.IsNullOrWhiteSpace(n))
+                .Select(n => n!);
+            var notification = $"New Koolstoof order #{order.Id} from {order.CustomerName} — R{order.Total} — {deliveryArea.Name}";
+            await _whatsAppNotificationService.SendToAllAsync(adminNumbers, notification);
 
             if (paymentMethod == PaymentMethod.PayFast)
             {
