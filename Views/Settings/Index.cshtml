@@ -1,7 +1,9 @@
+@using Microsoft.AspNetCore.Identity
 @model RestaurantSettings
 @{
     ViewData["Title"] = "Settings";
     var deliveryAreas = ViewBag.DeliveryAreas as List<DeliveryArea> ?? new List<DeliveryArea>();
+    var adminAccounts = ViewBag.AdminAccounts as List<IdentityUser> ?? new List<IdentityUser>();
 }
 
 <h1>Settings</h1>
@@ -9,6 +11,21 @@
 @if (TempData["SettingsSaved"] != null)
 {
     <div class="alert alert-success">@TempData["SettingsSaved"]</div>
+}
+
+@if (TempData["ResetPassword"] != null)
+{
+    <div class="alert alert-warning">
+        <strong>@($"New password for {TempData["ResetAdminId"]}:")</strong>
+        <code class="fs-5">@TempData["ResetPassword"]</code>
+        <br />
+        <small>Copy this now — it will not be shown again.</small>
+    </div>
+}
+
+@if (TempData["ResetError"] != null)
+{
+    <div class="alert alert-danger">@TempData["ResetError"]</div>
 }
 
 @if (!ViewData.ModelState.IsValid)
@@ -84,6 +101,23 @@
                             <a asp-controller="DeliveryArea" asp-action="Edit" asp-route-id="@area.Id" class="btn btn-sm btn-outline-secondary">Edit</a>
                             <a asp-controller="DeliveryArea" asp-action="Delete" asp-route-id="@area.Id" class="btn btn-sm btn-outline-danger">Delete</a>
                         </span>
+                    </li>
+                }
+            </ul>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header"><strong>Admin Accounts</strong></div>
+            <ul class="list-group list-group-flush">
+                @foreach (var admin in adminAccounts)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>@admin.UserName</span>
+                        <form asp-controller="Settings" asp-action="ResetPassword" method="post"
+                              onsubmit="return confirm('Reset the password for @admin.UserName? The old password will stop working immediately.');">
+                            <input type="hidden" name="userId" value="@admin.Id" />
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">Reset Password</button>
+                        </form>
                     </li>
                 }
             </ul>

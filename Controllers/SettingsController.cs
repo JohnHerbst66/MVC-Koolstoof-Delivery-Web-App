@@ -1,5 +1,7 @@
 using Koolstoof_App_1.Data;
+using Koolstoof_App_1.Helpers;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Koolstoof_App_1.Controllers
@@ -8,22 +10,27 @@ namespace Koolstoof_App_1.Controllers
     public class SettingsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public SettingsController(ApplicationDbContext context)
+        public SettingsController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             var settings = _context.RestaurantSettings.First();
             ViewBag.DeliveryAreas = _context.DeliveryAreas.OrderBy(d => d.Name).ToList();
+            ViewBag.AdminAccounts = (await _userManager.GetUsersInRoleAsync("Admin"))
+                .OrderBy(u => u.UserName)
+                .ToList();
             return View(settings);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Index(TimeSpan weekdayOpen, TimeSpan weekdayClose, TimeSpan sundayOpen, TimeSpan sundayClose,
+        public async Task<IActionResult> Index(TimeSpan weekdayOpen, TimeSpan weekdayClose, TimeSpan sundayOpen, TimeSpan sundayClose,
             string? announcementText, bool announcementActive, string whatsAppNumber)
         {
             if (weekdayClose <= weekdayOpen)
@@ -42,6 +49,9 @@ namespace Koolstoof_App_1.Controllers
             if (!ModelState.IsValid)
             {
                 ViewBag.DeliveryAreas = _context.DeliveryAreas.OrderBy(d => d.Name).ToList();
+                ViewBag.AdminAccounts = (await _userManager.GetUsersInRoleAsync("Admin"))
+                    .OrderBy(u => u.UserName)
+                    .ToList();
                 var current = _context.RestaurantSettings.First();
                 current.WeekdayOpen = weekdayOpen;
                 current.WeekdayClose = weekdayClose;
@@ -64,6 +74,35 @@ namespace Koolstoof_App_1.Controllers
             _context.SaveChanges();
 
             TempData["SettingsSaved"] = "Settings saved.";
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null || !await _userManager.IsInRoleAsync(user, "Admin"))
+            {
+                return NotFound();
+            }
+
+            var newPassword = PasswordGenerator.GenerateStrong();
+
+            await _userManager.RemovePasswordAsync(user);
+            var result = await _userManager.AddPasswordAsync(user, newPassword);
+            if (!result.Succeeded)
+            {
+                TempData["ResetError"] = string.Join(" ", result.Errors.Select(e => e.Description));
+                return RedirectToAction("Index");
+            }
+
+            // Invalidate any existing sessions on this account (e.g. a lost device)
+            // now that its password has changed.
+            await _userManager.UpdateSecurityStampAsync(user);
+
+            TempData["ResetAdminId"] = user.UserName;
+            TempData["ResetPassword"] = newPassword;
             return RedirectToAction("Index");
         }
     }
