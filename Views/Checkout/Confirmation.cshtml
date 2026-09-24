@@ -35,6 +35,13 @@
 <p>@($"Subtotal: R{Model.Subtotal}")</p>
 <p>@($"Delivery fee: R{Model.DeliveryFee}")</p>
 <h4>@($"Total: R{Model.Total}")</h4>
-<p>Payment method: Cash on delivery</p>
+@if (Model.PaymentMethod == PaymentMethod.PayFast)
+{
+    <p>Payment method: PayFast @(Model.IsPaid ? "(Paid)" : "(Awaiting confirmation)")</p>
+}
+else
+{
+    <p>Payment method: Cash on delivery</p>
+}
 
 <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Back to Home</a>
