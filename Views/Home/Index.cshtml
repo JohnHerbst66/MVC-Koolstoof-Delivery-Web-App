@@ -28,12 +28,20 @@
     </div>
     <div class="hero-overlay"></div>
     <div class="hero-content">
+        <img src="~/images/koolstoof-lockup.svg" alt="Koolstoof" class="hero-logo" style="filter: invert(1);" />
         <span class="hero-badge">SINCE 2011 &middot; THABAZIMBI</span>
         <h1 class="hero-title">From our stove to your table.</h1>
         <p class="hero-subtitle">Fresh food, made the Koolstoof way &mdash; now available for online ordering and collection.</p>
         <div class="hero-actions">
             <a asp-controller="Menu" asp-action="Index" class="btn btn-primary btn-lg">Order Now</a>
-            <a asp-controller="Menu" asp-action="Index" class="btn btn-outline-light btn-lg">Browse the Menu</a>
+            @if (Model.Specials.Any())
+            {
+                <a href="#specials" class="btn btn-outline-light btn-lg">Specials</a>
+            }
+            else
+            {
+                <a asp-controller="Menu" asp-action="Index" class="btn btn-outline-light btn-lg">Browse the Menu</a>
+            }
         </div>
     </div>
 </section>
@@ -46,34 +54,125 @@
         </div>
         <div class="col-md-6">
             <h5>Find us</h5>
-            <p class="mb-0">Thabazimbi, Limpopo</p>
+            <p class="mb-0">
+                <a href="https://www.google.com/maps/dir/?api=1&amp;destination=-24.5925624,27.3956004" target="_blank" rel="noopener noreferrer">
+                    20 Warmbad Weg Rd, Thabazimbi &raquo; Get directions
+                </a>
+            </p>
         </div>
     </div>
 </section>
 
-@if (Model.Specials.Any())
+<section class="location-section">
+    <p class="section-eyebrow text-center">VISIT US</p>
+    <h2 class="section-title text-center">Find Koolstoof</h2>
+    <div class="ratio ratio-16x9 location-map">
+        <iframe src="https://www.google.com/maps?q=-24.5925624,27.3956004&amp;output=embed" style="border:0;" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade" title="Koolstoof Restaurant location"></iframe>
+    </div>
+    <p class="text-center mt-3">
+        <a href="https://www.google.com/maps/dir/?api=1&amp;destination=-24.5925624,27.3956004" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+            20 Warmbad Weg Rd, Thabazimbi &raquo; Get directions
+        </a>
+        <a href="https://www.google.com/maps/place/Koolstoof+Restaurant/@@-24.5925624,27.3956004,16z/data=!3m1!4b1!4m6!3m5!1s0x1ebeb17d7e088047:0xc65434abe76fb5bd!8m2!3d-24.5925624!4d27.3956004!16s%2Fg%2F11c5h48sz6" target="_blank" rel="noopener noreferrer" class="btn btn-outline-primary">
+            Read our reviews on Google
+        </a>
+    </p>
+</section>
+
+<section class="info-strip text-center">
+    <p class="section-eyebrow">DINING IN</p>
+    <h2 class="section-title">Book a Table</h2>
+    <p>Want to reserve a table for a sit-down visit? Message us on WhatsApp and we'll confirm your booking.</p>
+    <a href="@ContactInfo.WhatsAppLink("Hi, I'd like to book a table at Koolstoof.")" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-lg">
+        Book via WhatsApp
+    </a>
+</section>
+
+@if (Model.Categories.Any())
 {
     <section class="menu-teaser">
+        <p class="section-eyebrow">EXPLORE</p>
+        <h2 class="section-title">Our Menu</h2>
+        <div class="row">
+            @foreach (var category in Model.Categories)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="category-hero" style="background-image: url('@category.ImageUrl');">
+                            <div class="category-hero-overlay"></div>
+                            <div class="category-hero-content">
+                                <span class="category-hero-name">@category.Name</span>
+                                <a asp-controller="Menu" asp-action="Index" asp-fragment="@($"cat-{category.Id}")" class="btn btn-outline-light btn-sm category-hero-btn">View Menu</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+}
+
+@if (Model.Specials.Any())
+{
+    <section class="menu-teaser" id="specials">
         <p class="section-eyebrow">TODAY'S DEALS</p>
         <h2 class="section-title">Koolstoof Specials</h2>
         <div class="row">
             @foreach (var item in Model.Specials)
             {
-                <div class="col-md-4">
-                    <div class="menu-teaser-card">
-                        <h4>@item.Name</h4>
-                        @if (!string.IsNullOrEmpty(item.Description))
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        @if (!string.IsNullOrEmpty(item.SpecialImageUrl))
                         {
-                            <p>@item.Description</p>
-                        }
-                        @if (item.SpecialPrice.HasValue)
-                        {
-                            <p class="price"><s>@($"R{item.Price}")</s> @($"R{item.SpecialPrice}")</p>
+                            <div class="category-hero" style="background-image: url('@item.SpecialImageUrl');">
+                                <div class="category-hero-overlay"></div>
+                                <div class="category-hero-content">
+                                    <span class="category-hero-name">@item.Name</span>
+                                </div>
+                            </div>
                         }
                         else
                         {
-                            <p class="price">@($"R{item.Price}")</p>
+                            <div class="card-header">
+                                <strong>@item.Name</strong>
+                            </div>
                         }
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                @if (!string.IsNullOrEmpty(item.Description))
+                                {
+                                    <div><small>@item.Description</small></div>
+                                }
+                                @if (item.SpecialPrice.HasValue && item.IsSitDownSpecial)
+                                {
+                                    <div>@($"R{item.Price}")</div>
+                                    <div><small class="text-muted">@($"Sit-down special: R{item.SpecialPrice} (in-store only)")</small></div>
+                                }
+                                else if (item.SpecialPrice.HasValue)
+                                {
+                                    <div><s>@($"R{item.Price}")</s> @($"R{item.SpecialPrice}")</div>
+                                }
+                                else
+                                {
+                                    <div>@($"R{item.Price}")</div>
+                                }
+                            </li>
+                            <li class="list-group-item">
+                                @if (!item.IsDeliverable)
+                                {
+                                    <span class="text-muted"><small>Sit-down only &mdash; not available for delivery</small></span>
+                                }
+                                else
+                                {
+                                    <form asp-controller="Cart" asp-action="Add" method="post" class="d-flex align-items-center">
+                                        <input type="hidden" name="menuItemId" value="@item.Id" />
+                                        <input type="hidden" name="returnUrl" value="@Url.Action("Index", "Home")#specials" />
+                                        <input type="number" name="quantity" value="1" min="1" style="width: 60px;" class="form-control form-control-sm me-2" />
+                                        <button type="submit" class="btn btn-sm btn-primary">Add to Cart</button>
+                                    </form>
+                                }
+                            </li>
+                        </ul>
                     </div>
                 </div>
             }
@@ -100,6 +199,19 @@
                             <p>@item.Description</p>
                         }
                         <p class="price">@($"R{item.Price}")</p>
+                        @if (!item.IsDeliverable)
+                        {
+                            <p class="text-muted mb-0"><small>Sit-down only &mdash; not available for delivery</small></p>
+                        }
+                        else
+                        {
+                            <form asp-controller="Cart" asp-action="Add" method="post" class="d-flex align-items-center mt-2">
+                                <input type="hidden" name="menuItemId" value="@item.Id" />
+                                <input type="hidden" name="returnUrl" value="@Url.Action("Index", "Home")" />
+                                <input type="number" name="quantity" value="1" min="1" style="width: 60px;" class="form-control form-control-sm me-2" />
+                                <button type="submit" class="btn btn-sm btn-primary">Add to Cart</button>
+                            </form>
+                        }
                     </div>
                 </div>
             }

@@ -1,5 +1,6 @@
 using Koolstoof_App_1.Data;
 using Koolstoof_App_1.Models;
+using Koolstoof_App_1.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
@@ -17,6 +18,8 @@ namespace Koolstoof_App_1.Controllers
 
         public IActionResult Index()
         {
+            SpecialsService.SyncActiveSpecials(_context);
+
             var specials = _context.MenuItems
                 .Include(m => m.Category)
                 .Where(m => m.IsSpecial && m.IsInStock)
@@ -36,10 +39,16 @@ namespace Koolstoof_App_1.Controllers
                 .Select(m => m!)
                 .ToList();
 
+            var categories = _context.MenuCategories
+                .Where(c => !c.IsUncategorized && !string.IsNullOrEmpty(c.ImageUrl))
+                .OrderBy(c => c.DisplayOrder)
+                .ToList();
+
             var viewModel = new HomeViewModel
             {
                 Specials = specials,
-                MostSoldItems = mostSoldItems
+                MostSoldItems = mostSoldItems,
+                Categories = categories
             };
 
             return View(viewModel);

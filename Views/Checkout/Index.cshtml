@@ -8,6 +8,15 @@
 
 <h1>Checkout</h1>
 
+<div class="alert alert-danger">
+    <strong>We only deliver within Thabazimbi.</strong> If you place an order and your address is outside
+    Thabazimbi, we will not be able to deliver it and your payment will not be refunded.
+    <br />
+    Not sure if you're covered? Rather
+    <a href="@ContactInfo.WhatsAppLink("Hi, I'd like to order for delivery but I'm not sure if my area is covered.")" target="_blank" rel="noopener noreferrer">order through WhatsApp</a>
+    first so we can confirm before you pay.
+</div>
+
 @if (!ViewData.ModelState.IsValid)
 {
     <div class="alert alert-danger">

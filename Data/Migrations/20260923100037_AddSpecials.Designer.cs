@@ -4,6 +4,7 @@ using Koolstoof_App_1.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Koolstoof_App_1.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260923100037_AddSpecials")]
+    partial class AddSpecials
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -88,9 +91,6 @@ namespace Koolstoof_App_1.Data.Migrations
                     b.Property<bool>("IsInStock")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsSitDownSpecial")
-                        .HasColumnType("bit");
-
                     b.Property<bool>("IsSpecial")
                         .HasColumnType("bit");
 
@@ -100,9 +100,6 @@ namespace Koolstoof_App_1.Data.Migrations
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("SpecialImageUrl")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal?>("SpecialPrice")
                         .HasColumnType("decimal(18,2)");
@@ -236,17 +233,11 @@ namespace Koolstoof_App_1.Data.Migrations
                     b.Property<int>("EndCondition")
                         .HasColumnType("int");
 
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<bool>("IsEnded")
                         .HasColumnType("bit");
 
                     b.Property<int>("MenuItemId")
                         .HasColumnType("int");
-
-                    b.Property<bool>("SitDownOnly")
-                        .HasColumnType("bit");
 
                     b.Property<decimal>("SpecialPrice")
                         .HasColumnType("decimal(18,2)");
@@ -406,10 +397,12 @@ namespace Koolstoof_App_1.Data.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<string>("ProviderKey")
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("nvarchar(max)");
@@ -446,10 +439,12 @@ namespace Koolstoof_App_1.Data.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<string>("Value")
                         .HasColumnType("nvarchar(max)");

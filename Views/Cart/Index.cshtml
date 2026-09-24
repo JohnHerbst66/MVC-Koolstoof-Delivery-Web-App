@@ -29,7 +29,21 @@ else
                 <tr>
                     <td>@line.Name</td>
                     <td>@($"R{line.Price}")</td>
-                    <td>@line.Quantity</td>
+                    <td>
+                        <div class="qty-adjuster">
+                            <form asp-controller="Cart" asp-action="AdjustQuantity" method="post">
+                                <input type="hidden" name="menuItemId" value="@line.MenuItemId" />
+                                <input type="hidden" name="delta" value="-1" />
+                                <button type="submit" class="btn btn-sm btn-outline-secondary" @(line.Quantity <= 1 ? "disabled" : "")>&minus;</button>
+                            </form>
+                            <span>@line.Quantity</span>
+                            <form asp-controller="Cart" asp-action="AdjustQuantity" method="post">
+                                <input type="hidden" name="menuItemId" value="@line.MenuItemId" />
+                                <input type="hidden" name="delta" value="1" />
+                                <button type="submit" class="btn btn-sm btn-outline-secondary">&plus;</button>
+                            </form>
+                        </div>
+                    </td>
                     <td>@($"R{line.LineTotal}")</td>
                     <td>
                         <form asp-controller="Cart" asp-action="Remove" method="post">

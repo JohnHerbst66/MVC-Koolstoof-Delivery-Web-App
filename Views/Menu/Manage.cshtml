@@ -43,7 +43,7 @@
 				@if (!category.IsUncategorized)
 				{
 					<div class="card-footer">
-						<a asp-controller="MenuCategory" asp-action="Delete" asp-route-id="@category.Id" class="btn btn-sm btn-outline-danger">Delete category</a>
+						<a asp-controller="MenuCategory" asp-action="Edit" asp-route-id="@category.Id" class="btn btn-sm btn-outline-secondary">Edit category</a> <a asp-controller="MenuCategory" asp-action="Delete" asp-route-id="@category.Id" class="btn btn-sm btn-outline-danger">Delete category</a>
 					</div>
 				}
 			</div>

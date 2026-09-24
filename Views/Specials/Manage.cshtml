@@ -1,0 +1,82 @@
+@using Koolstoof_App_1.Services
+@model List<Special>
+@{
+    ViewData["Title"] = "Manage Specials";
+}
+
+<h1>Manage Specials</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Create a Special</a>
+</p>
+
+@if (!Model.Any())
+{
+    <p>No specials have been created yet.</p>
+}
+else
+{
+    <div class="row">
+        @foreach (var special in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    @if (!string.IsNullOrEmpty(special.ImageUrl))
+                    {
+                        <div class="category-hero" style="background-image: url('@special.ImageUrl');">
+                            <div class="category-hero-overlay"></div>
+                            <div class="category-hero-content">
+                                <span class="category-hero-name">@special.MenuItem.Name</span>
+                                @if (special.SitDownOnly)
+                                {
+                                    <span class="badge bg-info text-dark">Sit-down only</span>
+                                }
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="card-header">
+                            <strong>@special.MenuItem.Name</strong>
+                            @if (special.SitDownOnly)
+                            {
+                                <span class="badge bg-info text-dark">Sit-down only</span>
+                            }
+                        </div>
+                    }
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <div>@($"R{special.SpecialPrice}") <small class="text-muted">@($"(normal R{special.MenuItem.Price})")</small></div>
+                            <div><small>@SpecialsService.Describe(special)</small></div>
+                            <div class="mt-1">
+                                @if (special.IsEnded)
+                                {
+                                    <span class="badge bg-secondary">Ended</span>
+                                }
+                                else if (special.MenuItem.IsSpecial)
+                                {
+                                    <span class="badge bg-success">Active now</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">Inactive today</span>
+                                }
+                            </div>
+                        </li>
+                        <li class="list-group-item d-flex gap-2">
+                            @if (!special.IsEnded)
+                            {
+                                <form asp-action="Stop" asp-route-id="@special.Id" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary">Stop</button>
+                                </form>
+                            }
+                            <form asp-action="Delete" asp-route-id="@special.Id" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        }
+    </div>
+}

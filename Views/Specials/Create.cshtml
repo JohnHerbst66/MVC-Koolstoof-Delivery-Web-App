@@ -1,0 +1,125 @@
+@{
+    ViewData["Title"] = "Create Special";
+}
+
+<h1>Create a Special</h1>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <p class="mb-0">@error.ErrorMessage</p>
+        }
+    </div>
+}
+
+<div class="col-md-6">
+    <form asp-controller="Specials" asp-action="Create" method="post" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label class="form-label">Menu item</label>
+            <select name="menuItemId" asp-items="ViewBag.MenuItems" class="form-select" required>
+                <option value="">-- Select an item --</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Special price (R)</label>
+            <input type="text" name="specialPrice" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Picture (optional)</label>
+            <input type="file" name="imageFile" accept="image/*" class="form-control" />
+            <small class="form-text text-muted">On your phone this opens your camera or photo library. Or paste a link below instead.</small>
+            <input type="text" name="imageUrl" class="form-control mt-2" placeholder="https://..." />
+        </div>
+
+        <div class="mb-3 form-check">
+            <input type="checkbox" name="sitDownOnly" value="true" class="form-check-input" id="sitDownOnly" />
+            <label class="form-check-label" for="sitDownOnly">Sit-down only &mdash; this discount is for dine-in customers, online/delivery orders pay full price</label>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label d-block">Runs</label>
+
+            <div class="form-check">
+                <input type="radio" name="endCondition" value="SpecificDays" class="form-check-input end-condition-radio" data-shows="days-fields" checked />
+                <label class="form-check-label">Certain days of the week</label>
+            </div>
+            <div class="form-check">
+                <input type="radio" name="endCondition" value="UntilOutOfStock" class="form-check-input end-condition-radio" />
+                <label class="form-check-label">Until stock lasts</label>
+            </div>
+            <div class="form-check">
+                <input type="radio" name="endCondition" value="DateRange" class="form-check-input end-condition-radio" data-shows="daterange-fields" />
+                <label class="form-check-label">For a specific time frame</label>
+            </div>
+            <div class="form-check">
+                <input type="radio" name="endCondition" value="UntilStopped" class="form-check-input end-condition-radio" />
+                <label class="form-check-label">Until I stop or delete it</label>
+            </div>
+        </div>
+
+        <div id="days-fields" class="mb-3 border rounded p-3">
+            <label class="form-label d-block">Active on</label>
+            <div class="form-check form-check-inline">
+                <input type="checkbox" name="activeMonday" value="true" class="form-check-input" />
+                <label class="form-check-label">Mon</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input type="checkbox" name="activeTuesday" value="true" class="form-check-input" />
+                <label class="form-check-label">Tue</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input type="checkbox" name="activeWednesday" value="true" class="form-check-input" />
+                <label class="form-check-label">Wed</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input type="checkbox" name="activeThursday" value="true" class="form-check-input" />
+                <label class="form-check-label">Thu</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input type="checkbox" name="activeFriday" value="true" class="form-check-input" />
+                <label class="form-check-label">Fri</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input type="checkbox" name="activeSaturday" value="true" class="form-check-input" />
+                <label class="form-check-label">Sat</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input type="checkbox" name="activeSunday" value="true" class="form-check-input" />
+                <label class="form-check-label">Sun</label>
+            </div>
+        </div>
+
+        <div id="daterange-fields" class="mb-3 border rounded p-3" style="display: none;">
+            <div class="mb-2">
+                <label class="form-label">Starts</label>
+                <input type="datetime-local" name="startAt" class="form-control" />
+            </div>
+            <div>
+                <label class="form-label">Ends</label>
+                <input type="datetime-local" name="endAt" class="form-control" />
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Create Special</button>
+        <a asp-action="Manage" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.end-condition-radio').forEach(function (radio) {
+            radio.addEventListener('change', function () {
+                document.getElementById('days-fields').style.display = 'none';
+                document.getElementById('daterange-fields').style.display = 'none';
+                var target = this.getAttribute('data-shows');
+                if (target) {
+                    document.getElementById(target).style.display = 'block';
+                }
+            });
+        });
+    </script>
+}

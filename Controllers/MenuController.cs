@@ -1,5 +1,7 @@
 ﻿using Koolstoof_App_1.Data;
 using Koolstoof_App_1.Models;
+using Koolstoof_App_1.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +18,8 @@ namespace Koolstoof_App_1.Controllers
         }
         public IActionResult Index()
         {
+            SpecialsService.SyncActiveSpecials(_context);
+
             var categories = _context.MenuCategories
                 .Include(c => c.MenuItems)
                 .Where(c => !c.IsUncategorized)
@@ -24,20 +28,25 @@ namespace Koolstoof_App_1.Controllers
             return View(categories);
         }
 
+        [Authorize(Roles = "Admin")]
         public IActionResult Manage()
         {
+            SpecialsService.SyncActiveSpecials(_context);
+
             var categories = _context.MenuCategories
                 .Include(c => c.MenuItems)
                 .OrderBy(c => c.DisplayOrder)
                 .ToList();
             return View(categories);
         }
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Create()
         {
             ViewBag.Categories = new SelectList(_context.MenuCategories, "Id", "Name");
             return View();
         }
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(MenuItem item)
@@ -53,6 +62,7 @@ namespace Koolstoof_App_1.Controllers
         }
 
         //||Edit actions||\\
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Edit(int id)
         {
@@ -65,6 +75,7 @@ namespace Koolstoof_App_1.Controllers
             return View(item);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(int id, MenuItem item)
@@ -84,6 +95,7 @@ namespace Koolstoof_App_1.Controllers
         }
 
 
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Delete(int id)
         {
@@ -94,6 +106,7 @@ namespace Koolstoof_App_1.Controllers
             ViewBag.HasOrderHistory = _context.OrderItems.Any(oi => oi.MenuItemId == id);
             return View(item);
         }
+        [Authorize(Roles = "Admin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)

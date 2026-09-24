@@ -14,8 +14,10 @@ namespace Koolstoof_App_1.Models
         public bool IsInStock { get; set; } =true;
         public bool IsSpecial { get; set; }=false;
         public bool IsDeliverable { get; set; } = true;
+        public bool IsSitDownSpecial { get; set; } = false;
         [Column(TypeName = "decimal(18,2)")]
         public decimal? SpecialPrice { get; set; }
+        public string? SpecialImageUrl { get; set; }
         public int CategoryId { get; set; }
 
         [ValidateNever]

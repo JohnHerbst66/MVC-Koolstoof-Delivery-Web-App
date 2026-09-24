@@ -9,22 +9,35 @@
 <div class="row">
     @foreach (var category in Model)
     {
-        <div class="col-md-4">
+        <div class="col-md-4" id="cat-@category.Id">
             <div class="card mb-3">
                 @if (!string.IsNullOrEmpty(category.ImageUrl))
                 {
-                    <img src="@category.ImageUrl" class="card-img-top" alt="@category.Name" style="height: 160px; object-fit: cover;" />
+                    <div class="category-hero" style="background-image: url('@category.ImageUrl');">
+                        <div class="category-hero-overlay"></div>
+                        <div class="category-hero-content">
+                            <span class="category-hero-name">@category.Name</span>
+                        </div>
+                    </div>
                 }
-                <div class="card-header">
-                    <strong>@category.Name</strong>
-                </div>
+                else
+                {
+                    <div class="card-header">
+                        <strong>@category.Name</strong>
+                    </div>
+                }
                 <ul class="list-group list-group-flush">
                     @foreach (var item in category.MenuItems)
                     {
                         <li class="list-group-item">
                             <div>
                                 <strong>@item.Name</strong>
-                                @if (item.IsSpecial && item.SpecialPrice.HasValue)
+                                @if (item.IsSpecial && item.SpecialPrice.HasValue && item.IsSitDownSpecial)
+                                {
+                                    <span> - @($"R{item.Price}")</span>
+                                    <div><small class="text-muted">@($"Sit-down special: R{item.SpecialPrice} (in-store only, not applied to delivery orders)")</small></div>
+                                }
+                                else if (item.IsSpecial && item.SpecialPrice.HasValue)
                                 {
                                     <span> - <s>@($"R{item.Price}")</s> @($"R{item.SpecialPrice} (Special)")</span>
                                 }

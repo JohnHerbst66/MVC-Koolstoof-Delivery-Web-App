@@ -41,6 +41,7 @@ bld/
 appsettings.*.local.json
 secrets.json
 *.pfx
+admin-credentials-CONFIDENTIAL.txt
 
 # Node (if any front-end tooling gets added later)
 node_modules/
@@ -51,3 +52,6 @@ Thumbs.db
 
 # Docker Desktop sample content (not part of this app)
 welcome-to-docker/
+
+# Admin-uploaded photos (runtime content, not source — see wwwroot/images/uploads)
+wwwroot/images/uploads/

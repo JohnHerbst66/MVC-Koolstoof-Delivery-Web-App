@@ -1,0 +1,14 @@
+@model CartPreviewViewModel
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var hideOnControllers = new[] { "Cart", "Checkout" };
+}
+@if (Model.TotalItems > 0 && !hideOnControllers.Contains(controller))
+{
+    <div class="cart-floating-bar">
+        <div class="container d-flex align-items-center justify-content-between">
+            <span>@Model.TotalItems item@(Model.TotalItems == 1 ? "" : "s") in cart &middot; @($"R{Model.TotalPrice}")</span>
+            <a asp-controller="Cart" asp-action="Index" class="btn btn-sm btn-light">View Cart</a>
+        </div>
+    </div>
+}

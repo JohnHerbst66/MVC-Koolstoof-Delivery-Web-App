@@ -1,11 +1,12 @@
 @model MenuCategory
 @{
-    ViewData["Title"] = "Add Category";
+    ViewData["Title"] = "Edit Category";
 }
-<h1>Add Category</h1>
+<h1>Edit Category</h1>
 
 <div class="col-md-6">
-    <form asp-action="Create" method="post" enctype="multipart/form-data">
+    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+        <input type="hidden" asp-for="Id" />
         <div class="mb-3">
             <label asp-for="Name" class="form-label"></label>
             <input asp-for="Name" class="form-control" />
@@ -17,9 +18,13 @@
             <span asp-validation-for="DisplayOrder" class="text-danger"></span>
         </div>
         <div class="mb-3">
+            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+            {
+                <img src="@Model.ImageUrl" alt="" style="height: 80px; display: block; margin-bottom: 0.5rem;" />
+            }
             <label class="form-label">Picture</label>
             <input type="file" name="imageFile" accept="image/*" class="form-control" />
-            <small class="form-text text-muted">On your phone this opens your camera or photo library. Or paste a link below instead.</small>
+            <small class="form-text text-muted">On your phone this opens your camera or photo library. Or paste a link below instead — leave blank to keep the current picture.</small>
             <input asp-for="ImageUrl" class="form-control mt-2" placeholder="https://..." />
             <span asp-validation-for="ImageUrl" class="text-danger"></span>
         </div>
