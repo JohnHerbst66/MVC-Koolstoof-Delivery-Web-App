@@ -4,10 +4,9 @@ namespace Koolstoof_App_1.Helpers
 {
     public static class ContactInfo
     {
-        // TODO: replace with the restaurant's own WhatsApp number once one is set up.
-        public const string WhatsAppNumber = "27604944665";
-
-        public static string WhatsAppLink(string message) =>
-            $"https://wa.me/{WhatsAppNumber}?text={WebUtility.UrlEncode(message)}";
+        // The WhatsApp number is admin-editable — see RestaurantSettings.WhatsAppNumber
+        // (Settings tab). This just builds the link once you have that number.
+        public static string WhatsAppLink(string number, string message) =>
+            $"https://wa.me/{number}?text={WebUtility.UrlEncode(message)}";
     }
 }

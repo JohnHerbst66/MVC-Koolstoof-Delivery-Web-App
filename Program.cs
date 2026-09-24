@@ -1,4 +1,5 @@
 using Koolstoof_App_1.Data;
+using Koolstoof_App_1.Models;
 using Koolstoof_App_1.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,7 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.Sign
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 builder.Services.AddControllersWithViews();
+builder.Services.Configure<PayFastSettings>(builder.Configuration.GetSection("PayFast"));
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
@@ -39,6 +41,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     await AdminAccountSeeder.SeedAsync(scope.ServiceProvider);
+    await RestaurantSettingsSeeder.SeedAsync(scope.ServiceProvider);
 }
 
 // Configure the HTTP request pipeline.

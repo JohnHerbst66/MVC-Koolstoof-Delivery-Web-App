@@ -48,7 +48,8 @@ namespace Koolstoof_App_1.Controllers
             {
                 Specials = specials,
                 MostSoldItems = mostSoldItems,
-                Categories = categories
+                Categories = categories,
+                Settings = _context.RestaurantSettings.First()
             };
 
             return View(viewModel);

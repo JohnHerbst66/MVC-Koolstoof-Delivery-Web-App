@@ -1,0 +1,92 @@
+@model RestaurantSettings
+@{
+    ViewData["Title"] = "Settings";
+    var deliveryAreas = ViewBag.DeliveryAreas as List<DeliveryArea> ?? new List<DeliveryArea>();
+}
+
+<h1>Settings</h1>
+
+@if (TempData["SettingsSaved"] != null)
+{
+    <div class="alert alert-success">@TempData["SettingsSaved"]</div>
+}
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <p class="mb-0">@error.ErrorMessage</p>
+        }
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header"><strong>Ordering Hours</strong></div>
+            <div class="card-body">
+                <form asp-controller="Settings" asp-action="Index" method="post">
+                    <label class="form-label d-block">Monday &ndash; Saturday</label>
+                    <div class="d-flex gap-2 mb-3">
+                        <input type="time" name="weekdayOpen" value="@Model.WeekdayOpen.ToString(@"hh\:mm")" class="form-control" required />
+                        <span class="align-self-center">to</span>
+                        <input type="time" name="weekdayClose" value="@Model.WeekdayClose.ToString(@"hh\:mm")" class="form-control" required />
+                    </div>
+
+                    <label class="form-label d-block">Sunday</label>
+                    <div class="d-flex gap-2 mb-3">
+                        <input type="time" name="sundayOpen" value="@Model.SundayOpen.ToString(@"hh\:mm")" class="form-control" required />
+                        <span class="align-self-center">to</span>
+                        <input type="time" name="sundayClose" value="@Model.SundayClose.ToString(@"hh\:mm")" class="form-control" required />
+                    </div>
+
+                    <hr />
+
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" name="announcementActive" value="true" class="form-check-input" id="announcementActive" @(Model.AnnouncementActive ? "checked" : "") />
+                        <label class="form-check-label" for="announcementActive">Show announcement banner on the Home page</label>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Announcement text</label>
+                        <input type="text" name="announcementText" value="@Model.AnnouncementText" class="form-control" placeholder="e.g. Closed for load-shedding until 5pm today" />
+                    </div>
+
+                    <hr />
+
+                    <div class="mb-3">
+                        <label class="form-label">WhatsApp number (country code, no + or spaces)</label>
+                        <input type="text" name="whatsAppNumber" value="@Model.WhatsAppNumber" class="form-control" placeholder="27821234567" required />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Save Settings</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <strong>Delivery Areas</strong>
+                <a asp-controller="DeliveryArea" asp-action="Create" class="btn btn-sm btn-primary">Add Area</a>
+            </div>
+            <ul class="list-group list-group-flush">
+                @if (!deliveryAreas.Any())
+                {
+                    <li class="list-group-item text-muted">No delivery areas yet.</li>
+                }
+                @foreach (var area in deliveryAreas)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>@area.Name <small class="text-muted">@($"(R{area.DeliveryFee} delivery fee)")</small></span>
+                        <span>
+                            <a asp-controller="DeliveryArea" asp-action="Edit" asp-route-id="@area.Id" class="btn btn-sm btn-outline-secondary">Edit</a>
+                            <a asp-controller="DeliveryArea" asp-action="Delete" asp-route-id="@area.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+                        </span>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+</div>

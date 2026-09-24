@@ -4,6 +4,7 @@ using Koolstoof_App_1.Helpers;
 using Koolstoof_App_1.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
 
 namespace Koolstoof_App_1.Controllers
@@ -13,40 +14,45 @@ namespace Koolstoof_App_1.Controllers
         private const string CartSessionKey = "Cart";
 
         private readonly ApplicationDbContext _context;
+        private readonly PayFastSettings _payFastSettings;
 
-        public CheckoutController(ApplicationDbContext context)
+        public CheckoutController(ApplicationDbContext context, IOptions<PayFastSettings> payFastSettings)
         {
             _context = context;
+            _payFastSettings = payFastSettings.Value;
         }
 
         [HttpGet]
         public IActionResult Index()
         {
             var cart = HttpContext.Session.GetObjectFromJson<List<CartItem>>(CartSessionKey) ?? new List<CartItem>();
+            var settings = _context.RestaurantSettings.First();
 
             ViewBag.Cart = cart;
             ViewBag.Subtotal = cart.Sum(c => c.LineTotal);
             ViewBag.DeliveryAreas = new SelectList(_context.DeliveryAreas, "Id", "Name");
-            ViewBag.IsOpen = OrderingHours.IsOpenNow();
-            ViewBag.HoursDescription = OrderingHours.HoursDescription;
+            ViewBag.IsOpen = OrderingHours.IsOpenNow(settings);
+            ViewBag.HoursDescription = OrderingHours.HoursDescription(settings);
+            ViewBag.WhatsAppNumber = settings.WhatsAppNumber;
 
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult PlaceOrder(string customerName, string customerPhone, string deliveryAddress, int deliveryAreaId)
+        public IActionResult PlaceOrder(string customerName, string customerPhone, string deliveryAddress, int deliveryAreaId, PaymentMethod paymentMethod)
         {
             var cart = HttpContext.Session.GetObjectFromJson<List<CartItem>>(CartSessionKey) ?? new List<CartItem>();
+            var settings = _context.RestaurantSettings.First();
 
             if (!cart.Any())
             {
                 ModelState.AddModelError("", "Your cart is empty.");
             }
 
-            if (!OrderingHours.IsOpenNow())
+            if (!OrderingHours.IsOpenNow(settings))
             {
-                ModelState.AddModelError("", $"We're closed right now. Ordering hours: {OrderingHours.HoursDescription}.");
+                ModelState.AddModelError("", $"We're closed right now. Ordering hours: {OrderingHours.HoursDescription(settings)}.");
             }
 
             var deliveryArea = _context.DeliveryAreas.Find(deliveryAreaId);
@@ -83,8 +89,9 @@ namespace Koolstoof_App_1.Controllers
                 ViewBag.Cart = cart;
                 ViewBag.Subtotal = cart.Sum(c => c.LineTotal);
                 ViewBag.DeliveryAreas = new SelectList(_context.DeliveryAreas, "Id", "Name", deliveryAreaId);
-                ViewBag.IsOpen = OrderingHours.IsOpenNow();
-                ViewBag.HoursDescription = OrderingHours.HoursDescription;
+                ViewBag.IsOpen = OrderingHours.IsOpenNow(settings);
+                ViewBag.HoursDescription = OrderingHours.HoursDescription(settings);
+                ViewBag.WhatsAppNumber = settings.WhatsAppNumber;
                 return View("Index");
             }
 
@@ -99,7 +106,7 @@ namespace Koolstoof_App_1.Controllers
                 DeliveryFee = deliveryArea.DeliveryFee,
                 Subtotal = subtotal,
                 Total = subtotal + deliveryArea.DeliveryFee,
-                PaymentMethod = PaymentMethod.CashOnDelivery,
+                PaymentMethod = paymentMethod,
                 IsPaid = false,
                 Status = OrderStatus.Incoming
             };
@@ -120,6 +127,11 @@ namespace Koolstoof_App_1.Controllers
 
             HttpContext.Session.Remove(CartSessionKey);
 
+            if (paymentMethod == PaymentMethod.PayFast)
+            {
+                return RedirectToAction("PayFastRedirect", new { id = order.Id });
+            }
+
             return RedirectToAction("Confirmation", new { id = order.Id });
         }
 
@@ -137,6 +149,98 @@ namespace Koolstoof_App_1.Controllers
             }
 
             return View(order);
+        }
+
+        // Renders a page that auto-submits an HTML form to PayFast's payment page —
+        // PayFast expects a browser POST with these fields, not a redirect with a
+        // query string, which is why this isn't just a RedirectResult.
+        [HttpGet]
+        public IActionResult PayFastRedirect(int id)
+        {
+            var order = _context.Orders.Include(o => o.OrderItems).FirstOrDefault(o => o.Id == id);
+            if (order == null || order.PaymentMethod != PaymentMethod.PayFast)
+            {
+                return NotFound();
+            }
+
+            var fields = new List<KeyValuePair<string, string>>
+            {
+                new("merchant_id", _payFastSettings.MerchantId),
+                new("merchant_key", _payFastSettings.MerchantKey),
+                new("return_url", Url.Action("PayFastReturn", "Checkout", new { id = order.Id }, Request.Scheme)!),
+                new("cancel_url", Url.Action("PayFastCancel", "Checkout", new { id = order.Id }, Request.Scheme)!),
+                new("notify_url", Url.Action("PayFastNotify", "Checkout", null, Request.Scheme)!),
+                new("name_first", order.CustomerName),
+                new("m_payment_id", order.Id.ToString()),
+                new("amount", order.Total.ToString("F2")),
+                new("item_name", $"Koolstoof order #{order.Id}"),
+            };
+
+            var signature = PayFastHelper.GenerateSignature(fields, _payFastSettings.Passphrase);
+
+            ViewBag.ProcessUrl = _payFastSettings.ProcessUrl;
+            ViewBag.Fields = fields;
+            ViewBag.Signature = signature;
+
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult PayFastReturn(int id)
+        {
+            return RedirectToAction("Confirmation", new { id });
+        }
+
+        [HttpGet]
+        public IActionResult PayFastCancel(int id)
+        {
+            ViewBag.OrderId = id;
+            return View();
+        }
+
+        // PayFast calls this server-to-server (the ITN) once a payment completes —
+        // never trust the browser return_url alone to mark an order paid.
+        [HttpPost]
+        public async Task<IActionResult> PayFastNotify()
+        {
+            var form = await Request.ReadFormAsync();
+
+            var fields = new List<KeyValuePair<string, string>>();
+            string? postedSignature = null;
+            foreach (var key in form.Keys)
+            {
+                if (key == "signature")
+                {
+                    postedSignature = form[key];
+                    continue;
+                }
+                fields.Add(new KeyValuePair<string, string>(key, form[key]!));
+            }
+
+            var expectedSignature = PayFastHelper.GenerateSignature(fields, _payFastSettings.Passphrase);
+            if (postedSignature == null || !string.Equals(postedSignature, expectedSignature, StringComparison.OrdinalIgnoreCase))
+            {
+                return BadRequest();
+            }
+
+            if (!int.TryParse(form["m_payment_id"], out var orderId))
+            {
+                return BadRequest();
+            }
+
+            var order = _context.Orders.Find(orderId);
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            if (form["payment_status"] == "COMPLETE")
+            {
+                order.IsPaid = true;
+                _context.SaveChanges();
+            }
+
+            return Ok();
         }
     }
 }

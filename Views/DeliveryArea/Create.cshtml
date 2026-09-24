@@ -1,0 +1,23 @@
+@model DeliveryArea
+@{
+    ViewData["Title"] = "Add Delivery Area";
+}
+<h1>Add Delivery Area</h1>
+
+<div class="col-md-6">
+    <form asp-action="Create" method="post">
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="DeliveryFee" class="form-label">Delivery fee (R)</label>
+            <input asp-for="DeliveryFee" class="form-control" />
+            <span asp-validation-for="DeliveryFee" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a asp-action="Index" asp-controller="Settings" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>

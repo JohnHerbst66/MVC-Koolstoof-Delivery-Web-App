@@ -1,0 +1,26 @@
+@{
+    ViewData["Title"] = "Redirecting to PayFast";
+    List<KeyValuePair<string, string>> fields = ViewBag.Fields;
+    string processUrl = ViewBag.ProcessUrl;
+    string signature = ViewBag.Signature;
+}
+
+<h1>Redirecting you to PayFast&hellip;</h1>
+<p>Please wait, you're being taken to PayFast's secure payment page.</p>
+
+<form id="payfast-form" action="@processUrl" method="post">
+    @foreach (var field in fields)
+    {
+        <input type="hidden" name="@field.Key" value="@field.Value" />
+    }
+    <input type="hidden" name="signature" value="@signature" />
+    <noscript>
+        <button type="submit" class="btn btn-primary">Continue to PayFast</button>
+    </noscript>
+</form>
+
+@section Scripts {
+    <script>
+        document.getElementById('payfast-form').submit();
+    </script>
+}

@@ -1,0 +1,10 @@
+@{
+    ViewData["Title"] = "Payment Cancelled";
+    int orderId = ViewBag.OrderId;
+}
+
+<h1>Payment cancelled</h1>
+<p>@($"Your order #{orderId} was saved, but the PayFast payment wasn't completed.")</p>
+<p>You can try paying again, or contact us if you'd rather pay cash on delivery instead.</p>
+
+<a asp-controller="Menu" asp-action="Index" class="btn btn-primary">Back to the menu</a>

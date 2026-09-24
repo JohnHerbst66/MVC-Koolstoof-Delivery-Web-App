@@ -1,0 +1,23 @@
+@model DeliveryArea
+@{
+    ViewData["Title"] = "Delete Delivery Area";
+    int orderCount = ViewBag.OrderCount;
+}
+<h1>Delete Delivery Area</h1>
+
+@if (orderCount > 0)
+{
+    <div class="alert alert-warning">
+        @($"{Model.Name} is used by {orderCount} existing order(s) and can't be deleted. Consider just leaving it — old orders need it for their delivery-fee history.")
+    </div>
+    <a asp-action="Index" asp-controller="Settings" class="btn btn-secondary">Back to Settings</a>
+}
+else
+{
+    <p>Are you sure you want to delete <strong>@Model.Name</strong>?</p>
+    <form asp-action="Delete" method="post">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a asp-action="Index" asp-controller="Settings" class="btn btn-secondary">Cancel</a>
+    </form>
+}

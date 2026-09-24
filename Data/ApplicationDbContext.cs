@@ -12,6 +12,7 @@ namespace Koolstoof_App_1.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<Special> Specials { get; set; }
+        public DbSet<RestaurantSettings> RestaurantSettings { get; set; }
 
     }
 }
