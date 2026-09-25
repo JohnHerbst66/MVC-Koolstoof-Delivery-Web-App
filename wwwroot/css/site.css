@@ -287,6 +287,23 @@ footer.footer a {
   margin-bottom: 2rem;
 }
 
+/* Room below each home-page section so the button at its foot isn't crowding the next one. */
+.menu-teaser {
+  margin-bottom: 3.5rem;
+}
+.menu-teaser > .text-center {
+  margin-top: 0.5rem;
+}
+
+/* Stacks with a gap on phones instead of the two buttons touching. */
+.location-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
 .menu-teaser-card {
   background-color: var(--koolstoof-white);
   border: 1px solid var(--koolstoof-brown-light);
