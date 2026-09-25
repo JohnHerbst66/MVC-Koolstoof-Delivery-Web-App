@@ -25,9 +25,20 @@ body {
   background-color: var(--koolstoof-cream);
   border-radius: 0.75rem;
   box-shadow: 0 10px 35px rgba(0, 0, 0, 0.35);
-  padding: 2rem 1.5rem;
-  margin-top: 1.5rem;
-  margin-bottom: 1.5rem;
+  /* Narrower than the page so the background photo shows on both sides, even on phones. */
+  max-width: 1000px;
+  width: calc(100% - 1.5rem);
+  padding: 1.25rem 1rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+@media (min-width: 768px) {
+  .content-card {
+    width: calc(100% - 4rem);
+    padding: 2rem 1.5rem;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
 }
 
 h1, h2, h3, h4, h5, h6 {
