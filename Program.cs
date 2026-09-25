@@ -43,6 +43,10 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
+    // Creates/updates the schema on first run in a fresh environment (e.g. a new Azure
+    // SQL database) so it doesn't depend on running `dotnet ef database update` by hand.
+    await scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.MigrateAsync();
+
     await AdminAccountSeeder.SeedAsync(scope.ServiceProvider);
     await RestaurantSettingsSeeder.SeedAsync(scope.ServiceProvider);
 }

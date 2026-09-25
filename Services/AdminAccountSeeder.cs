@@ -13,6 +13,9 @@ namespace Koolstoof_App_1.Services
         {
             var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
             var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
+            var configuration = services.GetRequiredService<IConfiguration>();
+            var environment = services.GetRequiredService<IHostEnvironment>();
+            var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger("AdminAccountSeeder");
 
             if (!await roleManager.RoleExistsAsync(AdminRole))
             {
@@ -28,7 +31,19 @@ namespace Koolstoof_App_1.Services
                     continue;
                 }
 
-                var password = PasswordGenerator.GenerateStrong();
+                // Hosted environments (e.g. Azure) can't use the credentials file below — it
+                // would land on ephemeral storage and the generated passwords would be lost,
+                // locking everyone out. There, initial passwords come from configuration
+                // (AdminSeed__Passwords__ID001 ... as app settings).
+                var configuredPassword = configuration[$"AdminSeed:Passwords:{id}"];
+                if (string.IsNullOrWhiteSpace(configuredPassword) && !environment.IsDevelopment())
+                {
+                    logger.LogWarning("Skipping admin account {Id}: set AdminSeed:Passwords:{Id} to create it.", id, id);
+                    continue;
+                }
+
+                var generated = string.IsNullOrWhiteSpace(configuredPassword);
+                var password = generated ? PasswordGenerator.GenerateStrong() : configuredPassword!;
                 var user = new IdentityUser
                 {
                     UserName = id,
@@ -40,7 +55,14 @@ namespace Koolstoof_App_1.Services
                 if (result.Succeeded)
                 {
                     await userManager.AddToRoleAsync(user, AdminRole);
-                    newlyCreated.Add((id, password));
+                    if (generated)
+                    {
+                        newlyCreated.Add((id, password));
+                    }
+                }
+                else
+                {
+                    logger.LogError("Could not create admin account {Id}: {Errors}", id, string.Join(" ", result.Errors.Select(e => e.Description)));
                 }
             }
 
