@@ -1,0 +1,61 @@
+@model List<Order>
+@{
+    ViewData["Title"] = "Hidden orders";
+}
+
+<h1>Hidden orders</h1>
+<p class="text-muted">These orders are off the board but still saved. Restore one to put it back.</p>
+
+@if (TempData["OrderMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["OrderMessage"]</div>
+}
+
+@if (!Model.Any())
+{
+    <p>No hidden orders.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Order</th>
+                    <th>Customer</th>
+                    <th>Items</th>
+                    <th>Total</th>
+                    <th>Payment</th>
+                    <th>Placed</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in Model)
+                {
+                    <tr>
+                        <td>#@order.Id<br /><small class="text-muted">@order.Status</small></td>
+                        <td>@order.CustomerName<br /><small>@order.CustomerPhone</small></td>
+                        <td class="small">
+                            @foreach (var line in order.OrderItems)
+                            {
+                                <div>@line.Quantity x @line.MenuItemName</div>
+                            }
+                        </td>
+                        <td>@($"R{order.Total}")</td>
+                        <td class="small">@order.PaymentMethod<br />@(order.IsPaid ? "Paid" : "Unpaid")</td>
+                        <td class="small">@order.PlacedAt.ToString("dd MMM yyyy HH:mm")</td>
+                        <td>
+                            <form asp-action="Restore" asp-route-id="@order.Id" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-primary">Restore</button>
+                            </form>
+                            <a asp-action="Remove" asp-route-id="@order.Id" class="btn btn-sm btn-outline-secondary">Options</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<a asp-action="Manage" class="btn btn-secondary">Back to orders</a>

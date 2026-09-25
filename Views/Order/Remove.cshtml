@@ -1,0 +1,59 @@
+@model Order
+@{
+    ViewData["Title"] = $"Order #{Model.Id}";
+    var canDelete = Model.CanBeDeleted(out _);
+    var isHidden = Model.ArchivedAt != null;
+}
+
+<h1>Order #@Model.Id</h1>
+
+@if (TempData["OrderError"] != null)
+{
+    <div class="alert alert-danger">@TempData["OrderError"]</div>
+}
+
+<div class="card mb-4" style="max-width: 32rem;">
+    <div class="card-body">
+        <p class="mb-1"><strong>@Model.CustomerName</strong> &middot; @Model.CustomerPhone</p>
+        <p class="mb-1 small">@Model.DeliveryAddress (@Model.DeliveryArea.Name)</p>
+        <ul class="list-unstyled small mb-2">
+            @foreach (var line in Model.OrderItems)
+            {
+                <li>@line.Quantity x @line.MenuItemName</li>
+            }
+        </ul>
+        <p class="mb-1"><strong>@($"R{Model.Total}")</strong></p>
+        <p class="mb-1 small">@Model.PaymentMethod @(Model.IsPaid ? "(Paid)" : "(Unpaid)") &middot; @Model.Status</p>
+        <p class="mb-0 small text-muted">Placed @Model.PlacedAt.ToString("dd MMM yyyy HH:mm")</p>
+    </div>
+</div>
+
+<h2 class="h4">Hide this order</h2>
+@if (isHidden)
+{
+    <p>This order is already hidden. You can bring it back from <a asp-action="Hidden">Hidden orders</a>.</p>
+}
+else
+{
+    <p>Takes the order off the board. It is <strong>not deleted</strong> &mdash; it stays in your records and you can bring it back any time from Hidden orders.</p>
+    <form asp-action="Hide" asp-route-id="@Model.Id" method="post" class="mb-4">
+        <button type="submit" class="btn btn-primary">Hide order #@Model.Id</button>
+    </form>
+}
+
+<h2 class="h4">Delete this order permanently</h2>
+@if (!canDelete)
+{
+    <div class="alert alert-secondary" style="max-width: 32rem;">@ViewBag.DeleteBlockedReason</div>
+}
+else
+{
+    <p class="text-danger"><strong>This cannot be undone.</strong> The order and its items are erased for good. Only do this for test, cancelled or abandoned orders.</p>
+    <form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="mb-4" style="max-width: 24rem;">
+        <label class="form-label" for="confirmNumber">Type the order number (<strong>@Model.Id</strong>) to confirm</label>
+        <input id="confirmNumber" name="confirmNumber" class="form-control mb-2" autocomplete="off" inputmode="numeric" required />
+        <button type="submit" class="btn btn-danger">Delete order #@Model.Id permanently</button>
+    </form>
+}
+
+<a asp-action="@(isHidden ? "Hidden" : "Manage")" class="btn btn-secondary">Cancel, go back</a>

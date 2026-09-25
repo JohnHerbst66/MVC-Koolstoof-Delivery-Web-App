@@ -60,13 +60,26 @@ Staff log in and land on the **Orders dashboard** by default (highest-frequency 
 
 Staff accounts: individual logins per staff member (not one shared login), all under the Admin role — supports accountability (who changed what) if that's added later.
 
-## Data storage — Azure (decided 2026-08-13)
+## Hosting — Vercel + Neon Postgres (decided 2026-09-25)
 
-One relational database for everything — **Azure SQL Database** (managed SQL Server in Azure, PaaS). Holds Identity users/roles, menu categories/items, orders/order items, delivery areas, settings/announcements. Rejected a SQLite (auth/orders) + MongoDB (menu) split: orders need to reference menu items via foreign keys, order placement + payment needs transactional guarantees (all-or-nothing), and the menu's shape is relational, not document-shaped — splitting into two databases would add complexity and risk (e.g. an order recorded without its items) for no benefit. Matches what the project already has configured (`Microsoft.EntityFrameworkCore.SqlServer`, `ApplicationDbContext`) — moving to Azure SQL for production is a connection-string change, not a rewrite.
+Live at **https://koolstoof.vercel.app** (Vercel project `koolstoof`, team `john-1cbd`), deployed from the GitHub repo's `main` branch. Chosen over Azure because John wants no monthly costs. (History: SQL Server + Azure App Service/Blob Storage was the original plan from 2026-08-13; dropped.)
 
-Images (menu photos, home page banners) go in **Azure Blob Storage**, not the database — only the resulting URL is stored in SQL (e.g. on `MenuItem`, home-content settings). Standard practice; databases handle large binary files poorly.
+- **Runtime**: Vercel's container runtime — `Dockerfile.vercel` + `vercel.json`. The container is **stateless and scales to zero**, has no persistent disk, and requests are capped at 4.5 MB. `.vercelignore` keeps local `bin/`/`obj/` out of the upload.
+- **Database**: **Neon Postgres** (Vercel Marketplace, resource `neon-cobalt-forest`), one relational DB for everything. The app uses the *unpooled* URL, passed as `ConnectionStrings__DefaultConnection` (`postgres://` URLs are converted in `Program.cs`).
+- **Because it is stateless**: the cart is an encrypted cookie (`Services/CartStore.cs`), Data Protection keys are stored in the DB (logins survive restarts), and uploaded photos are stored in the DB (`StoredImage`, served at `/media/{id}`, resized in the browser before upload to stay under the size cap).
+- **Time**: the server runs in UTC; `Helpers/SouthAfricaTime` gives South African time (fixed UTC+2). Times are stored in `timestamp without time zone` columns.
+- **Config / secrets** are Vercel environment variables (Production), never committed: `ConnectionStrings__DefaultConnection`, `PayFast__MerchantId/MerchantKey/Passphrase`, `WhatsAppCloud__PhoneNumberId/AccessToken`. Locally they live in .NET user-secrets. Admin passwords are only generated in Development (written to the gitignored `admin-credentials-CONFIDENTIAL.txt`); in production, accounts need `AdminSeed__Passwords__IDxxx` set or they are skipped.
+- **Deploying**: pushing to `main` deploys to production automatically; `vercel deploy --prod` also works. Public address `koolstoof.vercel.app` is open to customers; the per-deployment URLs sit behind Vercel login.
+- **PayFast** is on sandbox credentials. The ITN (`/Checkout/PayFastNotify`) signature covers *every* posted field including blanks (unlike the outgoing payment signature), and the paid amount must match the order.
+- **WhatsApp alerts** use an approved Meta template (`new_order_alert`). The token must be a permanent System User token — a temporary token expires after 24 hours and silently stops alerts.
 
-Likely hosted on **Azure App Service**, keeping everything (DB, storage, hosting) in one cloud provider.
+## Orders — hiding and deleting (2026-09-25)
+
+Admin orders board (`/Order/Manage`). Rules live in `Order.CanBeDeleted` and are enforced server-side:
+- **Any order can be hidden** (`ArchivedAt` set); hidden orders appear under Hidden orders and can be restored. "Clear delivered" hides all delivered orders at once.
+- **Paid orders can never be permanently deleted** — hide only. Cash orders count as paid once marked Delivered.
+- Only never-paid orders can be deleted, and a PayFast order that isn't paid yet is protected for 24 hours (its payment confirmation may still arrive).
+- Every action goes through a confirmation page; deleting also requires typing the order number.
 
 ## Cross-Claude Q&A
 

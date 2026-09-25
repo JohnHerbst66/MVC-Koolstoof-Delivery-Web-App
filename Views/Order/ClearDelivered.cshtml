@@ -1,0 +1,31 @@
+@model List<Order>
+@{
+    ViewData["Title"] = "Clear delivered orders";
+}
+
+<h1>Clear delivered orders</h1>
+
+@if (!Model.Any())
+{
+    <p>There are no delivered orders on the board.</p>
+    <a asp-action="Manage" class="btn btn-secondary">Back to orders</a>
+}
+else
+{
+    <p>
+        This will <strong>hide @Model.Count delivered @(Model.Count == 1 ? "order" : "orders")</strong> from the board.
+        Nothing is deleted: they stay saved and you can restore any of them from Hidden orders.
+    </p>
+
+    <ul class="small">
+        @foreach (var order in Model)
+        {
+            <li>#@order.Id &middot; @order.CustomerName &middot; @($"R{order.Total}") &middot; @order.PlacedAt.ToString("dd MMM HH:mm")</li>
+        }
+    </ul>
+
+    <form asp-action="ClearDeliveredConfirmed" method="post" class="d-inline">
+        <button type="submit" class="btn btn-primary">Hide these @Model.Count</button>
+    </form>
+    <a asp-action="Manage" class="btn btn-secondary">Cancel</a>
+}
