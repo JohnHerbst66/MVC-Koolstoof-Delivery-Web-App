@@ -229,7 +229,7 @@ namespace Koolstoof_App_1.Controllers
                 fields.Add(new KeyValuePair<string, string>(key, form[key]!));
             }
 
-            var expectedSignature = PayFastHelper.GenerateSignature(fields, _payFastSettings.Passphrase);
+            var expectedSignature = PayFastHelper.GenerateSignature(fields, _payFastSettings.Passphrase, isNotification: true);
             if (postedSignature == null || !string.Equals(postedSignature, expectedSignature, StringComparison.OrdinalIgnoreCase))
             {
                 return BadRequest();
@@ -246,7 +246,10 @@ namespace Koolstoof_App_1.Controllers
                 return NotFound();
             }
 
-            if (form["payment_status"] == "COMPLETE")
+            // The amount PayFast says it took must match what we asked for.
+            if (form["payment_status"] == "COMPLETE" &&
+                decimal.TryParse(form["amount_gross"], System.Globalization.NumberStyles.Number, System.Globalization.CultureInfo.InvariantCulture, out var paid) &&
+                paid == order.Total)
             {
                 order.IsPaid = true;
                 _context.SaveChanges();

@@ -10,12 +10,16 @@ namespace Koolstoof_App_1.Helpers
         // joined with '&', append the passphrase if one is set, then MD5-hash it.
         // Field order matters — it must match the order the same fields are
         // rendered in the posted HTML form.
-        public static string GenerateSignature(IEnumerable<KeyValuePair<string, string>> fields, string passphrase)
+        //
+        // The two directions differ: when *sending* a payment PayFast ignores blank
+        // fields, but when *verifying* an ITN it signs every posted field, blanks
+        // included and untrimmed (see PayFast's own ITN sample code).
+        public static string GenerateSignature(IEnumerable<KeyValuePair<string, string>> fields, string passphrase, bool isNotification = false)
         {
             var sb = new StringBuilder();
             foreach (var field in fields)
             {
-                if (string.IsNullOrEmpty(field.Value))
+                if (!isNotification && string.IsNullOrEmpty(field.Value))
                 {
                     continue;
                 }
@@ -23,7 +27,8 @@ namespace Koolstoof_App_1.Helpers
                 {
                     sb.Append('&');
                 }
-                sb.Append(field.Key).Append('=').Append(PhpUrlEncode(field.Value.Trim()));
+                var value = isNotification ? field.Value : field.Value.Trim();
+                sb.Append(field.Key).Append('=').Append(PhpUrlEncode(value));
             }
 
             if (!string.IsNullOrEmpty(passphrase))
