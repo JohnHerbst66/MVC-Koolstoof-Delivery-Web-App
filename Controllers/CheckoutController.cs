@@ -138,8 +138,7 @@ namespace Koolstoof_App_1.Controllers
                 .Select(u => u.PhoneNumber)
                 .Where(n => !string.IsNullOrWhiteSpace(n))
                 .Select(n => n!);
-            var notification = $"New Koolstoof order #{order.Id} from {order.CustomerName} — R{order.Total} — {deliveryArea.Name}";
-            await _whatsAppNotificationService.SendToAllAsync(adminNumbers, notification);
+            await _whatsAppNotificationService.SendOrderAlertAsync(adminNumbers, order.Id.ToString(), order.CustomerName, order.Total.ToString("F2"), deliveryArea.Name);
 
             if (paymentMethod == PaymentMethod.PayFast)
             {
