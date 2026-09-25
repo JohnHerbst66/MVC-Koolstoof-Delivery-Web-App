@@ -76,7 +76,7 @@ namespace Koolstoof_App_1.Services
         {
             var path = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "admin-credentials-CONFIDENTIAL.txt");
             var sb = new StringBuilder();
-            sb.AppendLine("Koolstoof Admin Accounts — generated " + DateTime.Now);
+            sb.AppendLine("Koolstoof Admin Accounts — generated " + SouthAfricaTime.Now);
             sb.AppendLine("These were only printed once, at creation. They are not recoverable from the database afterward.");
             sb.AppendLine();
             foreach (var (id, password) in accounts)

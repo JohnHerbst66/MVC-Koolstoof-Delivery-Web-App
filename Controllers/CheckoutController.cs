@@ -1,5 +1,4 @@
 using Koolstoof_App_1.Data;
-using Koolstoof_App_1.Extensions;
 using Koolstoof_App_1.Helpers;
 using Koolstoof_App_1.Models;
 using Koolstoof_App_1.Services;
@@ -13,26 +12,26 @@ namespace Koolstoof_App_1.Controllers
 {
     public class CheckoutController : Controller
     {
-        private const string CartSessionKey = "Cart";
-
         private readonly ApplicationDbContext _context;
         private readonly PayFastSettings _payFastSettings;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly WhatsAppNotificationService _whatsAppNotificationService;
+        private readonly CartStore _cartStore;
 
         public CheckoutController(ApplicationDbContext context, IOptions<PayFastSettings> payFastSettings,
-            UserManager<IdentityUser> userManager, WhatsAppNotificationService whatsAppNotificationService)
+            UserManager<IdentityUser> userManager, WhatsAppNotificationService whatsAppNotificationService, CartStore cartStore)
         {
             _context = context;
             _payFastSettings = payFastSettings.Value;
             _userManager = userManager;
             _whatsAppNotificationService = whatsAppNotificationService;
+            _cartStore = cartStore;
         }
 
         [HttpGet]
         public IActionResult Index()
         {
-            var cart = HttpContext.Session.GetObjectFromJson<List<CartItem>>(CartSessionKey) ?? new List<CartItem>();
+            var cart = _cartStore.Get();
             var settings = _context.RestaurantSettings.First();
 
             ViewBag.Cart = cart;
@@ -49,7 +48,7 @@ namespace Koolstoof_App_1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PlaceOrder(string customerName, string customerPhone, string deliveryAddress, int deliveryAreaId, PaymentMethod paymentMethod)
         {
-            var cart = HttpContext.Session.GetObjectFromJson<List<CartItem>>(CartSessionKey) ?? new List<CartItem>();
+            var cart = _cartStore.Get();
             var settings = _context.RestaurantSettings.First();
 
             if (!cart.Any())
@@ -132,7 +131,7 @@ namespace Koolstoof_App_1.Controllers
             _context.Orders.Add(order);
             _context.SaveChanges();
 
-            HttpContext.Session.Remove(CartSessionKey);
+            _cartStore.Clear();
 
             var adminNumbers = (await _userManager.GetUsersInRoleAsync("Admin"))
                 .Select(u => u.PhoneNumber)

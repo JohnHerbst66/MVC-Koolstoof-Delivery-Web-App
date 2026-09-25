@@ -1,4 +1,4 @@
-﻿using Koolstoof_App_1.Data;
+using Koolstoof_App_1.Data;
 using Koolstoof_App_1.Helpers;
 using Koolstoof_App_1.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -11,11 +11,9 @@ namespace Koolstoof_App_1.Controllers
     public class MenuCategoryController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly IWebHostEnvironment _env;
-        public MenuCategoryController(ApplicationDbContext context, IWebHostEnvironment env)
+        public MenuCategoryController(ApplicationDbContext context)
         {
             _context = context;
-            _env = env;
         }
         [HttpGet]
         public IActionResult Create()
@@ -26,7 +24,7 @@ namespace Koolstoof_App_1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(MenuCategory menuCategory, IFormFile? imageFile)
         {
-            var (uploadedUrl, uploadError) = await ImageUploadHelper.SaveAsync(imageFile, _env.WebRootPath);
+            var (uploadedUrl, uploadError) = await ImageUploadHelper.SaveAsync(imageFile, _context);
             if (uploadError != null)
             {
                 ModelState.AddModelError("", uploadError);
@@ -74,7 +72,7 @@ namespace Koolstoof_App_1.Controllers
                 return BadRequest();
             }
 
-            var (uploadedUrl, uploadError) = await ImageUploadHelper.SaveAsync(imageFile, _env.WebRootPath);
+            var (uploadedUrl, uploadError) = await ImageUploadHelper.SaveAsync(imageFile, _context);
             if (uploadError != null)
             {
                 ModelState.AddModelError("", uploadError);

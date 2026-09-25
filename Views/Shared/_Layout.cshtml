@@ -58,6 +58,10 @@
     </header>
     <div class="container content-card">
         <main role="main" class="pb-3">
+            @if (TempData["CartError"] != null)
+            {
+                <div class="alert alert-warning">@TempData["CartError"]</div>
+            }
             @RenderBody()
         </main>
     </div>

@@ -1,3 +1,5 @@
+using Koolstoof_App_1.Helpers;
+
 using Koolstoof_App_1.Data;
 using Koolstoof_App_1.Models;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +18,7 @@ namespace Koolstoof_App_1.Services
                 .Where(s => !s.IsEnded)
                 .ToList();
 
-            var now = DateTime.Now;
+            var now = SouthAfricaTime.Now;
             var today = now.DayOfWeek;
 
             foreach (var special in specials)

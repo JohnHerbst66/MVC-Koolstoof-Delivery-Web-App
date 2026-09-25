@@ -1,5 +1,4 @@
 using Koolstoof_App_1.Data;
-using Koolstoof_App_1.Extensions;
 using Koolstoof_App_1.Models;
 using Koolstoof_App_1.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -8,19 +7,20 @@ namespace Koolstoof_App_1.Controllers
 {
     public class CartController : Controller
     {
-        private const string CartSessionKey = "Cart";
+        private const int MaxQuantityPerLine = 99;
 
         private readonly ApplicationDbContext _context;
+        private readonly CartStore _cartStore;
 
-        public CartController(ApplicationDbContext context)
+        public CartController(ApplicationDbContext context, CartStore cartStore)
         {
             _context = context;
+            _cartStore = cartStore;
         }
 
         public IActionResult Index()
         {
-            var cart = HttpContext.Session.GetObjectFromJson<List<CartItem>>(CartSessionKey) ?? new List<CartItem>();
-            return View(cart);
+            return View(_cartStore.Get());
         }
 
         [HttpPost]
@@ -40,12 +40,12 @@ namespace Koolstoof_App_1.Controllers
                 return NotFound();
             }
 
-            var cart = HttpContext.Session.GetObjectFromJson<List<CartItem>>(CartSessionKey) ?? new List<CartItem>();
+            var cart = _cartStore.Get();
 
             var existingLine = cart.FirstOrDefault(c => c.MenuItemId == menuItemId);
             if (existingLine != null)
             {
-                existingLine.Quantity += quantity;
+                existingLine.Quantity = Math.Min(MaxQuantityPerLine, existingLine.Quantity + quantity);
             }
             else
             {
@@ -54,11 +54,14 @@ namespace Koolstoof_App_1.Controllers
                     MenuItemId = menuItem.Id,
                     Name = menuItem.Name,
                     Price = menuItem.IsSpecial && !menuItem.IsSitDownSpecial && menuItem.SpecialPrice.HasValue ? menuItem.SpecialPrice.Value : menuItem.Price,
-                    Quantity = quantity
+                    Quantity = Math.Min(MaxQuantityPerLine, quantity)
                 });
             }
 
-            HttpContext.Session.SetObjectAsJson(CartSessionKey, cart);
+            if (!_cartStore.Save(cart))
+            {
+                TempData["CartError"] = "Your cart is full — please check out or remove something before adding more.";
+            }
 
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             {
@@ -72,13 +75,13 @@ namespace Koolstoof_App_1.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult AdjustQuantity(int menuItemId, int delta)
         {
-            var cart = HttpContext.Session.GetObjectFromJson<List<CartItem>>(CartSessionKey) ?? new List<CartItem>();
+            var cart = _cartStore.Get();
 
             var line = cart.FirstOrDefault(c => c.MenuItemId == menuItemId);
             if (line != null)
             {
-                line.Quantity = Math.Max(1, line.Quantity + delta);
-                HttpContext.Session.SetObjectAsJson(CartSessionKey, cart);
+                line.Quantity = Math.Clamp(line.Quantity + delta, 1, MaxQuantityPerLine);
+                _cartStore.Save(cart);
             }
 
             return RedirectToAction("Index");
@@ -88,9 +91,9 @@ namespace Koolstoof_App_1.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Remove(int menuItemId)
         {
-            var cart = HttpContext.Session.GetObjectFromJson<List<CartItem>>(CartSessionKey) ?? new List<CartItem>();
+            var cart = _cartStore.Get();
             cart.RemoveAll(c => c.MenuItemId == menuItemId);
-            HttpContext.Session.SetObjectAsJson(CartSessionKey, cart);
+            _cartStore.Save(cart);
 
             return RedirectToAction("Index");
         }

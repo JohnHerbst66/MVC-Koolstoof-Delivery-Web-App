@@ -6,7 +6,7 @@ namespace Koolstoof_App_1.Helpers
     {
         public static bool IsOpenNow(RestaurantSettings settings)
         {
-            var now = DateTime.Now;
+            var now = SouthAfricaTime.Now;
             var (open, close) = now.DayOfWeek == DayOfWeek.Sunday
                 ? (settings.SundayOpen, settings.SundayClose)
                 : (settings.WeekdayOpen, settings.WeekdayClose);
@@ -19,13 +19,13 @@ namespace Koolstoof_App_1.Helpers
 
         public static string TodayHoursDescription(RestaurantSettings settings)
         {
-            var (open, close) = DateTime.Now.DayOfWeek == DayOfWeek.Sunday
+            var (open, close) = SouthAfricaTime.Now.DayOfWeek == DayOfWeek.Sunday
                 ? (settings.SundayOpen, settings.SundayClose)
                 : (settings.WeekdayOpen, settings.WeekdayClose);
 
             return $"{Format(open)} – {Format(close)}";
         }
 
-        private static string Format(TimeSpan t) => DateTime.Today.Add(t).ToString("H:mm");
+        private static string Format(TimeSpan t) => SouthAfricaTime.Today.Add(t).ToString("H:mm");
     }
 }

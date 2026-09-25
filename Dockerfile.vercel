@@ -1,0 +1,14 @@
+# Container build used by Vercel (see vercel.json). Kept separate from the Visual Studio
+# Dockerfile, which is tuned for local debugging.
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+COPY Koolstoof-App-1.csproj ./
+RUN dotnet restore
+COPY . .
+RUN dotnet publish Koolstoof-App-1.csproj -c Release --no-restore -o /app/publish /p:UseAppHost=false
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-noble-chiseled
+WORKDIR /app
+COPY --from=build /app/publish ./
+ENV PORT=80 DOTNET_EnableDiagnostics=0
+ENTRYPOINT ["dotnet", "Koolstoof-App-1.dll"]

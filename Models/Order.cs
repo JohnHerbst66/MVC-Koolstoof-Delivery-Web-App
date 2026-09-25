@@ -1,3 +1,5 @@
+using Koolstoof_App_1.Helpers;
+
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
@@ -6,7 +8,7 @@ namespace Koolstoof_App_1.Models
     public class Order
     {
         public int Id { get; set; }
-        public DateTime PlacedAt { get; set; } = DateTime.Now;
+        public DateTime PlacedAt { get; set; } = SouthAfricaTime.Now;
 
         public required string CustomerName { get; set; }
         public required string CustomerPhone { get; set; }

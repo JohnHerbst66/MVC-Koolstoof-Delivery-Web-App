@@ -13,12 +13,10 @@ namespace Koolstoof_App_1.Controllers
     public class SpecialsController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly IWebHostEnvironment _env;
 
-        public SpecialsController(ApplicationDbContext context, IWebHostEnvironment env)
+        public SpecialsController(ApplicationDbContext context)
         {
             _context = context;
-            _env = env;
         }
 
         public IActionResult Manage()
@@ -73,7 +71,7 @@ namespace Koolstoof_App_1.Controllers
                 ModelState.AddModelError("", "Enter a valid start and end date/time, with the end after the start.");
             }
 
-            var (uploadedUrl, uploadError) = await ImageUploadHelper.SaveAsync(imageFile, _env.WebRootPath);
+            var (uploadedUrl, uploadError) = await ImageUploadHelper.SaveAsync(imageFile, _context);
             if (uploadError != null)
             {
                 ModelState.AddModelError("", uploadError);

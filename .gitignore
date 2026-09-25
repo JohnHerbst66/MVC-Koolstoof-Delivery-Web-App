@@ -53,5 +53,3 @@ Thumbs.db
 # Docker Desktop sample content (not part of this app)
 welcome-to-docker/
 
-# Admin-uploaded photos (runtime content, not source — see wwwroot/images/uploads)
-wwwroot/images/uploads/

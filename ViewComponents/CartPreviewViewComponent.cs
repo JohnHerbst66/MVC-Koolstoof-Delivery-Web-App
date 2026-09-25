@@ -1,4 +1,4 @@
-using Koolstoof_App_1.Extensions;
+using Koolstoof_App_1.Services;
 using Koolstoof_App_1.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,11 +6,16 @@ namespace Koolstoof_App_1.ViewComponents
 {
     public class CartPreviewViewComponent : ViewComponent
     {
-        private const string CartSessionKey = "Cart";
+        private readonly CartStore _cartStore;
+
+        public CartPreviewViewComponent(CartStore cartStore)
+        {
+            _cartStore = cartStore;
+        }
 
         public IViewComponentResult Invoke()
         {
-            var cart = HttpContext.Session.GetObjectFromJson<List<CartItem>>(CartSessionKey) ?? new List<CartItem>();
+            var cart = _cartStore.Get();
 
             var model = new CartPreviewViewModel
             {

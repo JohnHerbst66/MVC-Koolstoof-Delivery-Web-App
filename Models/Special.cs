@@ -1,3 +1,5 @@
+using Koolstoof_App_1.Helpers;
+
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
@@ -42,6 +44,6 @@ namespace Koolstoof_App_1.Models
         // this on their own since they're meant to recur week to week.
         public bool IsEnded { get; set; } = false;
 
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = SouthAfricaTime.Now;
     }
 }
