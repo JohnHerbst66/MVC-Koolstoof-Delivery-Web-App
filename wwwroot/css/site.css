@@ -46,6 +46,14 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--koolstoof-brown-light) !important;
 }
 
+/* The phone menu button must stay visible against the dark header. */
+.navbar .navbar-toggler {
+  border-color: rgba(255, 255, 255, 0.6);
+}
+.navbar .navbar-toggler:focus {
+  box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
+}
+
 .btn-primary {
   background-color: var(--koolstoof-brown);
   border-color: var(--koolstoof-brown);
