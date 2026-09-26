@@ -23,5 +23,14 @@ namespace Koolstoof_App_1.Models
         [ValidateNever]
         public MenuCategory Category { get; set; } = null!;
 
+        // Choices a customer makes when ordering, e.g. sauce or side. Empty for most items.
+        [ValidateNever]
+        public ICollection<OptionGroup> OptionGroups { get; set; } = new List<OptionGroup>();
+
+        // What a delivery customer pays for the item itself (before any option surcharges).
+        // A sit-down special is in-store only, so it never applies here.
+        [NotMapped]
+        public decimal DeliveryPrice => IsSpecial && !IsSitDownSpecial && SpecialPrice.HasValue ? SpecialPrice.Value : Price;
+
     }
 }

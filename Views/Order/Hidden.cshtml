@@ -39,7 +39,11 @@ else
                         <td class="small">
                             @foreach (var line in order.OrderItems)
                             {
-                                <div>@line.Quantity x @line.MenuItemName</div>
+                                <div>@line.Quantity x @line.MenuItemName
+@if (!string.IsNullOrEmpty(line.Choices))
+                                {
+                                    <div class="line-choices">@line.Choices</div>
+                                }</div>
                             }
                         </td>
                         <td>@($"R{order.Total}")</td>

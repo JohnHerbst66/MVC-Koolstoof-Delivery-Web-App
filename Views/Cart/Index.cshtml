@@ -13,6 +13,7 @@
 }
 else
 {
+    <div class="table-responsive">
     <table class="table">
         <thead>
             <tr>
@@ -27,18 +28,22 @@ else
             @foreach (var line in Model)
             {
                 <tr>
-                    <td>@line.Name</td>
+                    <td>@line.Name
+@if (!string.IsNullOrEmpty(line.Choices))
+                        {
+                            <div class="line-choices">@line.Choices</div>
+                        }</td>
                     <td>@($"R{line.Price}")</td>
                     <td>
                         <div class="qty-adjuster">
                             <form asp-controller="Cart" asp-action="AdjustQuantity" method="post">
-                                <input type="hidden" name="menuItemId" value="@line.MenuItemId" />
+                                <input type="hidden" name="lineKey" value="@line.LineKey" />
                                 <input type="hidden" name="delta" value="-1" />
                                 <button type="submit" class="btn btn-sm btn-outline-secondary" @(line.Quantity <= 1 ? "disabled" : "")>&minus;</button>
                             </form>
                             <span>@line.Quantity</span>
                             <form asp-controller="Cart" asp-action="AdjustQuantity" method="post">
-                                <input type="hidden" name="menuItemId" value="@line.MenuItemId" />
+                                <input type="hidden" name="lineKey" value="@line.LineKey" />
                                 <input type="hidden" name="delta" value="1" />
                                 <button type="submit" class="btn btn-sm btn-outline-secondary">&plus;</button>
                             </form>
@@ -47,7 +52,7 @@ else
                     <td>@($"R{line.LineTotal}")</td>
                     <td>
                         <form asp-controller="Cart" asp-action="Remove" method="post">
-                            <input type="hidden" name="menuItemId" value="@line.MenuItemId" />
+                            <input type="hidden" name="lineKey" value="@line.LineKey" />
                             <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
                         </form>
                     </td>
@@ -55,6 +60,7 @@ else
             }
         </tbody>
     </table>
+    </div>
 
     <h3>@($"Total: R{Model.Sum(c => c.LineTotal)}")</h3>
 

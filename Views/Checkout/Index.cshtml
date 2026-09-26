@@ -45,6 +45,7 @@
 else
 {
     <h4>Order summary</h4>
+    <div class="table-responsive">
     <table class="table">
         <thead>
             <tr>
@@ -57,13 +58,18 @@ else
             @foreach (var line in cart)
             {
                 <tr>
-                    <td>@line.Name</td>
+                    <td>@line.Name
+@if (!string.IsNullOrEmpty(line.Choices))
+                        {
+                            <div class="line-choices">@line.Choices</div>
+                        }</td>
                     <td>@line.Quantity</td>
                     <td>@($"R{line.LineTotal}")</td>
                 </tr>
             }
         </tbody>
     </table>
+    </div>
     <p><strong>@($"Subtotal: R{subtotal}")</strong> (delivery fee added after you pick your area)</p>
 
     <form asp-controller="Checkout" asp-action="PlaceOrder" method="post" class="col-md-6">

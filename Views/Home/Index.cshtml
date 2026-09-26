@@ -167,6 +167,10 @@
                                 {
                                     <span class="text-muted"><small>Sit-down only &mdash; not available for delivery</small></span>
                                 }
+                                else if (item.OptionGroups.Any())
+                                {
+                                    <a asp-controller="Menu" asp-action="Index" asp-fragment="@($"item-{item.Id}")" class="btn btn-sm btn-primary">Choose options</a>
+                                }
                                 else
                                 {
                                     <form asp-controller="Cart" asp-action="Add" method="post" class="d-flex align-items-center">
@@ -207,6 +211,10 @@
                         @if (!item.IsDeliverable)
                         {
                             <p class="text-muted mb-0"><small>Sit-down only &mdash; not available for delivery</small></p>
+                        }
+                        else if (item.OptionGroups.Any())
+                        {
+                            <a asp-controller="Menu" asp-action="Index" asp-fragment="@($"item-{item.Id}")" class="btn btn-sm btn-primary mt-2">Choose options</a>
                         }
                         else
                         {

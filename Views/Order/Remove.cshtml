@@ -19,7 +19,11 @@
         <ul class="list-unstyled small mb-2">
             @foreach (var line in Model.OrderItems)
             {
-                <li>@line.Quantity x @line.MenuItemName</li>
+                <li>@line.Quantity x @line.MenuItemName
+@if (!string.IsNullOrEmpty(line.Choices))
+                {
+                    <div class="line-choices">@line.Choices</div>
+                }</li>
             }
         </ul>
         <p class="mb-1"><strong>@($"R{Model.Total}")</strong></p>

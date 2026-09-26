@@ -21,7 +21,7 @@ namespace Koolstoof_App_1.Controllers
             SpecialsService.SyncActiveSpecials(_context);
 
             var categories = _context.MenuCategories
-                .Include(c => c.MenuItems)
+                .Include(c => c.MenuItems).ThenInclude(m => m.OptionGroups).ThenInclude(g => g.Choices)
                 .Where(c => !c.IsUncategorized)
                 .OrderBy(c => c.DisplayOrder)
                 .ToList();
@@ -34,7 +34,7 @@ namespace Koolstoof_App_1.Controllers
             SpecialsService.SyncActiveSpecials(_context);
 
             var categories = _context.MenuCategories
-                .Include(c => c.MenuItems)
+                .Include(c => c.MenuItems).ThenInclude(m => m.OptionGroups)
                 .OrderBy(c => c.DisplayOrder)
                 .ToList();
             return View(categories);

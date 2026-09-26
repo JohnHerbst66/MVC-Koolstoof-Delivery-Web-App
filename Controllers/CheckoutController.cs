@@ -74,20 +74,32 @@ namespace Koolstoof_App_1.Controllers
 
             // Re-validate every line against the live menu, never trust the stored cart alone.
             var invalidItems = new List<string>();
+            var changedOptionItems = new List<string>();
             if (cart.Any())
             {
                 foreach (var line in cart)
                 {
-                    var menuItem = _context.MenuItems.Find(line.MenuItemId);
+                    var menuItem = _context.MenuItems
+                        .Include(m => m.OptionGroups).ThenInclude(g => g.Choices)
+                        .FirstOrDefault(m => m.Id == line.MenuItemId);
                     if (menuItem == null || !menuItem.IsInStock || !menuItem.IsDeliverable)
                     {
                         invalidItems.Add(line.Name);
+                    }
+                    else if (!OptionSelection.Resolve(menuItem, line.ChoiceIds).IsValid)
+                    {
+                        // A sauce or side was removed, or a new required choice was added, since it went in the cart.
+                        changedOptionItems.Add(line.Name);
                     }
                 }
             }
             if (invalidItems.Any())
             {
                 ModelState.AddModelError("", $"These items are no longer available for delivery and were not removed automatically, please update your cart: {string.Join(", ", invalidItems)}.");
+            }
+            if (changedOptionItems.Any())
+            {
+                ModelState.AddModelError("", $"The choices for these items have changed. Please remove them from your cart and add them again: {string.Join(", ", changedOptionItems)}.");
             }
 
             if (!ModelState.IsValid)
@@ -124,7 +136,8 @@ namespace Koolstoof_App_1.Controllers
                     MenuItemId = line.MenuItemId,
                     MenuItemName = line.Name,
                     UnitPrice = line.Price,
-                    Quantity = line.Quantity
+                    Quantity = line.Quantity,
+                    Choices = line.Choices
                 });
             }
 

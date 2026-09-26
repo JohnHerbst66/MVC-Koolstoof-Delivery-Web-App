@@ -81,6 +81,16 @@ Admin orders board (`/Order/Manage`). Rules live in `Order.CanBeDeleted` and are
 - Only never-paid orders can be deleted, and a PayFast order that isn't paid yet is protected for 24 hours (its payment confirmation may still arrive).
 - Every action goes through a confirmation page; deleting also requires typing the order number.
 
+## Item choices — sauces and sides (2026-09-26)
+
+Some items come with choices (e.g. schnitzel: mushroom / cheese / pepper sauce, served with chips and onion rings or pumpkin and spinach).
+- **Model**: `MenuItem` has `OptionGroup`s ("Sauce", "Served with"); each group has `OptionChoice`s with an optional `ExtraPrice`. A group is **required** (customer must pick one) or optional. One pick per group.
+- **Admin**: Manage Menu, then "Choices" on an item (`/Options/Manage/{id}`, `OptionsController`). Add/rename/delete groups and choices, and copy a whole set from another item.
+- **Customer**: the choices appear as radio buttons inside the item's add-to-cart form on `/Menu`. On the home page an item with choices shows "Choose options", which links to the menu.
+- **Rules live in `Services/OptionSelection.cs`** and run both when adding to the cart and again at checkout: choices must belong to the item, one per group, required groups answered. A cart holding a choice that was later deleted can't be checked out until the customer picks again.
+- **Cart lines** are identified by item + choices (`CartItem.LineKey`), so the same item with different sauces is a separate line. Cart/Adjust/Remove use `lineKey`, not `menuItemId`.
+- **Orders** keep a text snapshot of the choices (`OrderItem.Choices`), shown on the order board, confirmation, and hidden/remove pages. Deleting a choice later never changes past orders. The WhatsApp alert template does not include items.
+
 ## Cross-Claude Q&A
 
 Async bridge between Claude Code (Code guy) and Claude Cowork (Docs guy) — John relays messages between the two chats. Ask a question by appending it here under **Open questions**; when answered, move it to **Answered** with the answer inline and date.

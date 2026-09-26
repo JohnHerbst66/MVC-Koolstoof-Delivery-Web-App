@@ -29,7 +29,7 @@
                 <ul class="list-group list-group-flush">
                     @foreach (var item in category.MenuItems)
                     {
-                        <li class="list-group-item">
+                        <li class="list-group-item" id="item-@item.Id">
                             <div>
                                 <strong>@item.Name</strong>
                                 @if (item.IsSpecial && item.SpecialPrice.HasValue && item.IsSitDownSpecial)
@@ -61,10 +61,38 @@
                             }
                             else
                             {
-                                <form asp-controller="Cart" asp-action="Add" method="post" class="d-flex align-items-center mt-1">
+                                <form asp-controller="Cart" asp-action="Add" method="post" class="mt-1">
                                     <input type="hidden" name="menuItemId" value="@item.Id" />
-                                    <input type="number" name="quantity" value="1" min="1" style="width: 60px;" class="form-control form-control-sm me-2" />
-                                    <button type="submit" class="btn btn-sm btn-primary">Add to Cart</button>
+                                    @foreach (var group in item.OptionGroups.OrderBy(g => g.DisplayOrder).ThenBy(g => g.Id))
+                                    {
+                                        <fieldset class="item-options">
+                                            <legend>@group.Name @(group.IsRequired ? "" : "(optional)")</legend>
+                                            @if (!group.IsRequired)
+                                            {
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="choice_@group.Id" id="c-@group.Id-none" value="" checked />
+                                                    <label class="form-check-label" for="c-@group.Id-none">None</label>
+                                                </div>
+                                            }
+                                            @foreach (var choice in group.Choices.OrderBy(c => c.DisplayOrder).ThenBy(c => c.Id))
+                                            {
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="choice_@group.Id" id="c-@choice.Id" value="@choice.Id" @(group.IsRequired ? "required" : "") />
+                                                    <label class="form-check-label" for="c-@choice.Id">
+                                                        @choice.Name
+@if (choice.ExtraPrice > 0)
+                                                        {
+                                                            <span class="text-muted"> (+@($"R{choice.ExtraPrice:0.00}"))</span>
+                                                        }
+                                                    </label>
+                                                </div>
+                                            }
+                                        </fieldset>
+                                    }
+                                    <div class="d-flex align-items-center mt-2">
+                                        <input type="number" name="quantity" value="1" min="1" style="width: 60px;" class="form-control form-control-sm me-2" />
+                                        <button type="submit" class="btn btn-sm btn-primary">Add to Cart</button>
+                                    </div>
                                 </form>
                             }
                         </li>

@@ -1,0 +1,132 @@
+@model MenuItem
+@{
+    ViewData["Title"] = $"Choices for {Model.Name}";
+    var copySources = (List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>)ViewBag.CopySources;
+}
+
+<h1>Choices for @Model.Name</h1>
+<p class="text-muted">
+    Use this when an item comes with a choice, for example a schnitzel with a <strong>sauce</strong> and a <strong>side</strong>.
+    Make a group for each question, then add the choices customers pick from.
+</p>
+
+@if (TempData["OptionsMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["OptionsMessage"]</div>
+}
+@if (TempData["OptionsError"] != null)
+{
+    <div class="alert alert-danger">@TempData["OptionsError"]</div>
+}
+
+@if (!Model.OptionGroups.Any())
+{
+    <p>This item has no choices yet, so customers can add it straight to their cart.</p>
+}
+
+@foreach (var group in Model.OptionGroups.OrderBy(g => g.DisplayOrder).ThenBy(g => g.Id))
+{
+    <div class="card mb-4 option-group-card">
+        <div class="card-header">
+            <form asp-action="UpdateGroup" asp-route-id="@group.Id" method="post" class="row g-2 align-items-center">
+                <div class="col-sm-5">
+                    <label class="visually-hidden" for="group-name-@group.Id">Group name</label>
+                    <input id="group-name-@group.Id" name="name" value="@group.Name" maxlength="60" class="form-control" required />
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-check">
+                        <input type="checkbox" name="isRequired" value="true" id="req-@group.Id" class="form-check-input" @(group.IsRequired ? "checked" : "") />
+                        <label class="form-check-label" for="req-@group.Id">Customer must choose</label>
+                    </div>
+                </div>
+                <div class="col-sm-4 text-sm-end">
+                    <button type="submit" class="btn btn-sm btn-primary">Save group</button>
+                    <button type="submit" formaction="@Url.Action("DeleteGroup", "Options", new { id = group.Id })" class="btn btn-sm btn-outline-danger"
+                            onclick="return confirm('Delete this group and all its choices?');">Delete group</button>
+                </div>
+            </form>
+        </div>
+        <div class="card-body">
+            @foreach (var choice in group.Choices.OrderBy(c => c.DisplayOrder).ThenBy(c => c.Id))
+            {
+                <form asp-action="UpdateChoice" asp-route-id="@choice.Id" method="post" class="row g-2 align-items-center mb-2">
+                    <div class="col-sm-6">
+                        <label class="visually-hidden" for="choice-name-@choice.Id">Choice</label>
+                        <input id="choice-name-@choice.Id" name="name" value="@choice.Name" maxlength="60" class="form-control form-control-sm" required />
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text">+ R</span>
+                            <input name="extraPrice" value="@(choice.ExtraPrice == 0 ? "" : choice.ExtraPrice.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture))"
+                                   inputmode="decimal" placeholder="0" class="form-control" aria-label="Extra price" />
+                        </div>
+                    </div>
+                    <div class="col-sm-3 text-sm-end">
+                        <button type="submit" class="btn btn-sm btn-outline-primary">Save</button>
+                        <button type="submit" formaction="@Url.Action("DeleteChoice", "Options", new { id = choice.Id })" class="btn btn-sm btn-outline-danger"
+                                onclick="return confirm('Remove this choice?');">Remove</button>
+                    </div>
+                </form>
+            }
+
+            <form asp-action="AddChoice" method="post" class="row g-2 align-items-center mt-2 pt-2 border-top">
+                <input type="hidden" name="groupId" value="@group.Id" />
+                <div class="col-sm-6">
+                    <input name="name" maxlength="60" placeholder="New choice, e.g. Mushroom sauce" class="form-control form-control-sm" required aria-label="New choice" />
+                </div>
+                <div class="col-sm-3">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text">+ R</span>
+                        <input name="extraPrice" inputmode="decimal" placeholder="0" class="form-control" aria-label="Extra price" />
+                    </div>
+                </div>
+                <div class="col-sm-3 text-sm-end">
+                    <button type="submit" class="btn btn-sm btn-primary">Add choice</button>
+                </div>
+            </form>
+            <small class="text-muted">Leave the extra price empty if the choice costs nothing extra.</small>
+        </div>
+    </div>
+}
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h2 class="h5">Add a group of choices</h2>
+        <form asp-action="AddGroup" method="post" class="row g-2 align-items-center">
+            <input type="hidden" name="menuItemId" value="@Model.Id" />
+            <div class="col-sm-5">
+                <input name="name" maxlength="60" placeholder="Question, e.g. Sauce or Served with" class="form-control" required aria-label="Group name" />
+            </div>
+            <div class="col-sm-4">
+                <div class="form-check">
+                    <input type="checkbox" name="isRequired" value="true" id="new-required" class="form-check-input" checked />
+                    <label class="form-check-label" for="new-required">Customer must choose</label>
+                </div>
+            </div>
+            <div class="col-sm-3 text-sm-end">
+                <button type="submit" class="btn btn-primary">Add group</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (copySources.Any())
+{
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="h5">Copy choices from another item</h2>
+            <p class="small text-muted mb-2">Saves retyping the same sauces and sides. The copies are separate, so changing them here does not change the other item.</p>
+            <form asp-action="CopyFrom" method="post" class="row g-2 align-items-center">
+                <input type="hidden" name="menuItemId" value="@Model.Id" />
+                <div class="col-sm-8">
+                    <select name="sourceItemId" asp-items="copySources" class="form-select" aria-label="Item to copy from"></select>
+                </div>
+                <div class="col-sm-4 text-sm-end">
+                    <button type="submit" class="btn btn-outline-primary">Copy choices</button>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+<a asp-controller="Menu" asp-action="Manage" class="btn btn-secondary">Back to Manage Menu</a>

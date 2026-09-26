@@ -41,7 +41,11 @@
                             <ul class="list-unstyled small">
                                 @foreach (var line in order.OrderItems)
                                 {
-                                    <li>@line.Quantity x @line.MenuItemName</li>
+                                    <li>@line.Quantity x @line.MenuItemName
+@if (!string.IsNullOrEmpty(line.Choices))
+                                    {
+                                        <div class="line-choices">@line.Choices</div>
+                                    }</li>
                                 }
                             </ul>
                             <p class="mb-1"><strong>@($"R{order.Total}")</strong></p>

@@ -4,6 +4,10 @@
 }
 <h1>Edit Menu Item</h1>
 
+<p>
+    <a asp-controller="Options" asp-action="Manage" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-primary">Sauces, sides and other choices&hellip;</a>
+</p>
+
 <div class="col-md-6">
     <form asp-action="Edit" method="post">
         <input type="hidden" asp-for="Id" />

@@ -24,6 +24,9 @@ namespace Koolstoof_App_1.Models
 
         public int Quantity { get; set; }
 
+        // Snapshot of the options the customer picked, e.g. "Sauce: Cheese sauce; Served with: Chips".
+        public string? Choices { get; set; }
+
         [NotMapped]
         public decimal LineTotal => UnitPrice * Quantity;
     }

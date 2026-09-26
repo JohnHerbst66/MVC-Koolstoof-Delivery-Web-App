@@ -408,3 +408,32 @@ body {
   color: #FFFFFF;
   transform: scale(1.08);
 }
+/* Sauce / side choices on an item, and the summary of what was picked on cart and order lines. */
+.item-options {
+  margin: 0.5rem 0;
+  padding: 0.5rem 0.75rem;
+  background-color: var(--koolstoof-cream);
+  border-radius: 0.4rem;
+}
+.item-options legend {
+  float: none;
+  width: auto;
+  margin: 0 0 0.25rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--koolstoof-brown);
+}
+.line-choices {
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+/* Tighter tables on phones so cart and order lines fit inside the card. */
+@media (max-width: 575.98px) {
+  .content-card .table > :not(caption) > * > * {
+    padding: 0.4rem 0.3rem;
+  }
+  .content-card .table {
+    font-size: 0.9rem;
+  }
+}

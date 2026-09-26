@@ -15,6 +15,8 @@ namespace Koolstoof_App_1.Data
         public DbSet<Special> Specials { get; set; }
         public DbSet<RestaurantSettings> RestaurantSettings { get; set; }
         public DbSet<StoredImage> StoredImages { get; set; }
+        public DbSet<OptionGroup> OptionGroups { get; set; }
+        public DbSet<OptionChoice> OptionChoices { get; set; }
 
         // Login cookies and anti-forgery tokens are encrypted with keys that must
         // survive restarts and be shared across instances, so they live in the database

@@ -22,6 +22,7 @@ namespace Koolstoof_App_1.Controllers
 
             var specials = _context.MenuItems
                 .Include(m => m.Category)
+                .Include(m => m.OptionGroups)
                 .Where(m => m.IsSpecial && m.IsInStock)
                 .ToList();
 
@@ -34,7 +35,7 @@ namespace Koolstoof_App_1.Controllers
                 .ToList();
 
             var mostSoldItems = bestSellingIds
-                .Select(x => _context.MenuItems.FirstOrDefault(m => m.Id == x.MenuItemId && m.IsInStock))
+                .Select(x => _context.MenuItems.Include(m => m.OptionGroups).FirstOrDefault(m => m.Id == x.MenuItemId && m.IsInStock))
                 .Where(m => m != null)
                 .Select(m => m!)
                 .ToList();

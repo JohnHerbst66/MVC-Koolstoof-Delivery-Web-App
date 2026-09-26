@@ -13,6 +13,7 @@
 </p>
 
 <h4>Order summary</h4>
+<div class="table-responsive">
 <table class="table">
     <thead>
         <tr>
@@ -25,13 +26,18 @@
         @foreach (var line in Model.OrderItems)
         {
             <tr>
-                <td>@line.MenuItemName</td>
+                <td>@line.MenuItemName
+@if (!string.IsNullOrEmpty(line.Choices))
+                {
+                    <div class="line-choices">@line.Choices</div>
+                }</td>
                 <td>@line.Quantity</td>
                 <td>@($"R{line.LineTotal}")</td>
             </tr>
         }
     </tbody>
 </table>
+</div>
 <p>@($"Subtotal: R{Model.Subtotal}")</p>
 <p>@($"Delivery fee: R{Model.DeliveryFee}")</p>
 <h4>@($"Total: R{Model.Total}")</h4>
